@@ -4,10 +4,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import { Search } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { queryObjects } from "v8";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
-import { type ChromosomeFromSearch, type GenomeAssemblyFromSearch, getAvailbleGenomes, getGenomesChromosomes } from "~/utils/genome-api";
+import { type ChromosomeFromSearch, type GeneFromSearch, type GenomeAssemblyFromSearch, getAvailbleGenomes, getGenomesChromosomes, searchGenes } from "~/utils/genome-api";
 
 type Mode = "browse" | "search"
 
@@ -17,6 +18,7 @@ export default function HomePage() {
   const [chromosomes, setChromosomes] = useState<ChromosomeFromSearch[]>([]);
   const [selectedChromosome, setSelectedChromosome] = useState<string>("chr1");
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<GeneFromSearch[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mode, setMode] = useState<Mode>("search");
@@ -56,6 +58,29 @@ export default function HomePage() {
     };
     fetchChromosomes();
   }, [selectedGenome]);
+
+  const performGeneSearch = async (query: string, genome: string, filterFn?: (gene: GeneFromSearch) => boolean 
+  ) => {
+    try {
+      setIsLoading(true);
+      const data = await searchGenes(query, genome);
+      const resutls = filterFn ? data.results.filter(filterFn) : data.results;
+      setSearchResults(resutls);
+    } catch (err) {
+      setError("Failed to search through genes")
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!selectedChromosome || mode !== "browse") return;
+    performGeneSearch(
+      selectedChromosome,
+      selectedGenome,
+      (gene: GeneFromSearch) => gene.chrom === selectedChromosome,
+    )
+  }, [selectedChromosome, selectedChromosome, mode])
 
   const handleGenomeChange = (value: string) => {
     setSelectedGenome(value);
@@ -217,7 +242,7 @@ export default function HomePage() {
                 {error}
               </div>
             )}
-            
+
           </CardContent>
         </Card>
       </main>
