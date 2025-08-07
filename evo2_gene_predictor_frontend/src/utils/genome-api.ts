@@ -181,7 +181,7 @@ export async function fetchGeneDetails(
 
 
                 const minPos = Math.min(info.chrstart, info.chrstop)
-                const maxPos = Math.min(info.chrstart, info.chrstop)
+                const maxPos = Math.max(info.chrstart, info.chrstop)
                 const bounds = { min: minPos, max: maxPos };
 
                 const geneSize = maxPos - minPos; 
@@ -199,12 +199,26 @@ export async function fetchGeneDetails(
 }
 
 export async function fetchGeneSequence(chrom: string, start: number, end: number, genomeId: string): Promise<{sequence: string; actualRange: {start: number; end: number}, error?: string}> {
-    const chromosome = chrom.startsWith("chr") ? chrom : `chr${chrom}`;
+    try {
+        const chromosome = chrom.startsWith("chr") ? chrom : `chr${chrom}`;
 
-    const apiStart = start - 1;
-    const apiEnd = end;
+        const apiStart = start - 1;
+        const apiEnd = end;
 
-    const apiUrl = `https://api.genome.ucsc.edu/getData/sequence?genome=${genomeId};chrom=${chromosome};start=${apiStart};end=${apiEnd}`;
-    const response = await fetch(apiUrl);
-    const data = await response.json();
+        const apiUrl = `https://api.genome.ucsc.edu/getData/sequence?genome=${genomeId};chrom=${chromosome};start=${apiStart};end=${apiEnd}`;
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+
+        const actualRange = { start, end };
+
+        if (data.error) {
+            return { sequence: "", actualRange, error: data.error };
+        }
+
+        const sequence = data.dna.toUpperCase();
+
+        return { sequence, actualRange}
+    } catch (err) {
+        return { sequence: "", actualRange: { start, end }, error: "Internal error in fetch gene sequence"};
+    }
 }

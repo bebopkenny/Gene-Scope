@@ -1,9 +1,10 @@
 "use client";
 
-import { fetchGeneDetails, type GeneBounds, type GeneDetailsFromSearch, type GeneFromSearch } from "~/utils/genome-api";
+import { fetchGeneDetails, fetchGeneSequence as apiFetchGeneSequence, type GeneBounds, type GeneDetailsFromSearch, type GeneFromSearch } from "~/utils/genome-api";
 import { Button } from "./ui/button";
 import { ArrowLeft } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { GeneInformation } from "./gene-information";
 
 export default function GeneViewer({
     gene, 
@@ -14,6 +15,7 @@ export default function GeneViewer({
     genomeId: string; 
     onClose: () => void;
 }) {
+    const [geneSequence, setGeneSequnce] = useState("");
     const [geneDetail, setGeneDetail] = useState<GeneDetailsFromSearch | null>(
         null,
     );
@@ -25,6 +27,32 @@ export default function GeneViewer({
 
     const [startPosition, setStartPosition] = useState<string>("");
     const [endPosition, setEndPosition] = useState<string>("");
+    const [isLoadingSequence, setIsLoadingSequence] = useState(false);
+
+    const [actualRange, setActualRange] = useState<{start: number, end: number} | null>(null)
+
+
+    const fetchGeneSequence = useCallback(async (start: number, end: number) => {
+        try {
+            setIsLoadingSequence(true);
+            setError(null);
+
+
+            const {sequence, actualRange: fetchedRange, error: apiError } = await apiFetchGeneSequence(gene.chrom, start, end, genomeId)
+            
+            setGeneSequnce(sequence)
+            setActualRange(fetchedRange)
+
+            if (apiError) {
+                setError(apiError)
+            }
+            console.log(sequence)
+        } catch (err) {
+            setError("Failed to load sequence data")
+        } finally {
+            setIsLoadingSequence(false);
+        }
+    }, [gene.chrom, genomeId],)
 
     useEffect(() => {
         const initializeGeneData = async () => {
@@ -41,14 +69,16 @@ export default function GeneViewer({
             }
 
             try {
-                const {geneDetails, geneBounds, initialRange} = await fetchGeneDetails(gene.gene_id);
-                setGeneDetail(geneDetails);
-                setGeneBounds(geneBounds);
+                const {geneDetails: fetchedDetail, geneBounds: fetchedGeneBound, initialRange: fetchedRange} = await fetchGeneDetails(gene.gene_id);
+                setGeneDetail(fetchedDetail);
+                setGeneBounds(fetchedGeneBound);
 
-                if (initialRange) {
-                    setStartPosition(String(initialRange.start))
-                    setEndPosition(String(initialRange.end))
+                if (fetchedRange) {
+                    setStartPosition(String(fetchedRange.start))
+                    setEndPosition(String(fetchedRange.end))
+                    await fetchGeneSequence(fetchedRange.start, fetchedRange.end)
                 }
+                console.log(fetchedDetail)
 
             } catch {
                 setError("Failed to load gene information please try again.")
@@ -72,6 +102,7 @@ export default function GeneViewer({
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to results
         </Button>
+        <GeneInformation gene={gene} geneDetail={geneDetail} geneBounds={geneBounds}/>
     </div>
 
     );
