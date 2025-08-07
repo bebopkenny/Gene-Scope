@@ -193,12 +193,31 @@ export default function HomePage() {
                 <div className="max-h-[150px] overflow-y-auto pr-1">
                   <div className="flex flex-wrap gap-2">
                     {chromosomes.map((chrom) => (
-                      <Button key={chrom.name} variant="outline" size="sm">{chrom.name}</Button>
+                      <Button 
+                        key={chrom.name} 
+                        variant="outline" 
+                        size="sm" 
+                        className={`h-8 cursor-pinter hover-[#3c4f3d]/10 hover:bg-[#e9eeea] hover:text-[#3c4f3d] ${selectedChromosome === chrom.name ? "bg-[#e9eeea] text[#3c4f3d]" : ""}`}
+                        onClick={() => setSelectedChromosome(chrom.name)}
+                      >{chrom.name}</Button>
                     ))}
                   </div>
                 </div>
               </TabsContent>
             </Tabs>
+
+            {isLoading && (
+              <div className="flex justify-center py-4">
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#3c4f3d]/30 border-t-[#de8243]"></div>
+              </div>
+            )}
+
+            {error && ( 
+              <div className="mt-4 rounded-md border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                {error}
+              </div>
+            )}
+            
           </CardContent>
         </Card>
       </main>
