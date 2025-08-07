@@ -5,6 +5,7 @@ import { Search } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { queryObjects } from "v8";
+import GeneViewer from "~/components/gene-viewer";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
@@ -142,9 +143,15 @@ export default function HomePage() {
         </div>
       </header>
       <main className="container mx-auto px-6 py-6">
-        {selectedGene ? <h1>Selected gene {selectedGene.name}</h1> : 
+        {selectedGene ? (
+          <GeneViewer 
+            gene={selectedGene} 
+            genomeId={selectedGenome} 
+            onClose={() => setSelectedGene(null)} 
+          /> 
+        ) : (
         <>
-                  <Card className="mb-6 gap-0 border-none bg-white py-0 shadow-sm">
+          <Card className="mb-6 gap-0 border-none bg-white py-0 shadow-sm">
           <CardHeader className="pt-4 pb-2">
           <div className="flex items-center justify-between">
             <CardTitle className="text-sm font-normal text-[#3c4f3d]/70">
@@ -329,8 +336,8 @@ export default function HomePage() {
             )}
           </CardContent>
         </Card>
-        </>}
-
+        </>
+        )}
       </main>
     </div>
   );
