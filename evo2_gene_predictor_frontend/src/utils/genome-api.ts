@@ -36,6 +36,32 @@ export interface GeneBounds {
     max: number;
 }
 
+export interface ClinvarVariant {
+  clinvar_id: string;
+  title: string;
+  variation_type: string;
+  classification: string;
+  gene_sort: string;
+  chromosome: string;
+  location: string;
+  evo2Result?: {
+    prediction: string;
+    delta_score: number;
+    classification_confidence: number;
+  };
+  isAnalyzing?: boolean;
+  evo2Error?: string;
+}
+
+export interface AnalysisResult {
+  position: number;
+  reference: string;
+  alternative: string;
+  delta_score: number;
+  prediction: string;
+  classification_confidence: number;
+}
+
 export async function getAvailbleGenomes() {
     const apiUrl = `https://api.genome.ucsc.edu/list/ucscGenomes`;
     const response = await fetch(apiUrl);
@@ -222,3 +248,4 @@ export async function fetchGeneSequence(chrom: string, start: number, end: numbe
         return { sequence: "", actualRange: { start, end }, error: "Internal error in fetch gene sequence"};
     }
 }
+

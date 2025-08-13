@@ -3,9 +3,10 @@
 import { fetchGeneDetails, fetchGeneSequence as apiFetchGeneSequence, type GeneBounds, type GeneDetailsFromSearch, type GeneFromSearch } from "~/utils/genome-api";
 import { Button } from "./ui/button";
 import { ArrowLeft } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { GeneInformation } from "./gene-information";
 import { GeneSequence } from "./gene-sequence";
+import type { VariantAnalysisHandle } from "./variant-analysis";
 
 export default function GeneViewer({
     gene, 
@@ -16,7 +17,7 @@ export default function GeneViewer({
     genomeId: string; 
     onClose: () => void;
 }) {
-    const [geneSequence, setGeneSequnce] = useState("");
+    const [geneSequence, setGeneSequence] = useState("");
     const [geneDetail, setGeneDetail] = useState<GeneDetailsFromSearch | null>(
         null,
     );
@@ -32,6 +33,10 @@ export default function GeneViewer({
 
     const [actualRange, setActualRange] = useState<{start: number, end: number} | null>(null)
 
+    const [activeSequencePosition, setActiveSequencePosition] = useState<number | null>(null);
+    const [activeReferenceNucleotide, setActiveReferenceNucleotide] = useState<string | null>(null);
+
+    const variantAnalysisRef = useRef<VariantAnalysisHandle>(null);
 
     const fetchGeneSequence = useCallback(async (start: number, end: number) => {
         try {
@@ -41,7 +46,7 @@ export default function GeneViewer({
 
             const {sequence, actualRange: fetchedRange, error: apiError } = await apiFetchGeneSequence(gene.chrom, start, end, genomeId)
             
-            setGeneSequnce(sequence)
+            setGeneSequence(sequence)
             setActualRange(fetchedRange)
 
             if (apiError) {
@@ -89,13 +94,60 @@ export default function GeneViewer({
         };
 
         initializeGeneData();
-    }, [gene, genomeId])
+    }, [gene, genomeId, fetchGeneSequence])
+
+    
+
+    const handleLoadSequence = useCallback(() => {
+        const start = parseInt(startPosition);
+        const end = parseInt(endPosition);
+        let validationError: string | null = null;
+
+        if (isNaN(start) || isNaN(end)) {
+        validationError = "Please enter valid start and end positions";
+        } else if (start >= end) {
+        validationError = "Start position must be less than end position";
+        } else if (geneBounds) {
+        const minBound = Math.min(geneBounds.min, geneBounds.max);
+        const maxBound = Math.max(geneBounds.min, geneBounds.max);
+        if (start < minBound) {
+            validationError = `Start position (${start.toLocaleString()}) is below the minimum value (${minBound.toLocaleString()})`;
+        } else if (end > maxBound) {
+            validationError = `End position (${end.toLocaleString()}) exceeds the maximum value (${maxBound.toLocaleString()})`;
+        }
+
+        if (end - start > 10000) {
+            validationError = `Selected range exceeds maximum view range of 10.000 bp.`;
+        }
+        }
+
+        if (validationError) {
+        setError(validationError);
+        return;
+        }
+
+        setError(null);
+        fetchGeneSequence(start, end);
+    }, [startPosition, endPosition, fetchGeneSequence, geneBounds]);
+
+    const handleSequenceClick = useCallback(
+    (position: number, nucleotide: string) => {
+      setActiveSequencePosition(position);
+      setActiveReferenceNucleotide(nucleotide);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      if (variantAnalysisRef.current) {
+        variantAnalysisRef.current.focusAlternativeInput();
+      }
+    },
+    [],
+  );
+
 
     return ( 
     
     <div className="space-y-6">
         <Button 
-            className="cursor=pinter text-[#3c4f3d] hover:bg-[#e9eeea]/70" 
+            className="cursor-pointer text-[#3c4f3d] hover:bg-[#e9eeea]/70" 
             variant="ghost" 
             size="sm"
             onClick={onClose}
@@ -117,7 +169,7 @@ export default function GeneViewer({
             onSequenceLoadRequest={handleLoadSequence}
             onSequenceClick={handleSequenceClick}
             maxViewRange={10000}
-        />
+      />
         <GeneInformation gene={gene} geneDetail={geneDetail} geneBounds={geneBounds}/>
     </div>
 
