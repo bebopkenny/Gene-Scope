@@ -1,6 +1,6 @@
 # Gene Scope
 
-Gene Scope is a small project that uses the Evo2 model to check how likely DNA mutations are to cause disease. It has a Python backend for running predictions and a web app frontend for exploring genes and variants.
+Gene Scope is a project that uses the Evo2 model to check how likely DNA mutations are to cause disease. It has a Python backend for running predictions and a web app frontend for exploring genes and variants.
 
 ## Project Layout
 
@@ -39,3 +39,69 @@ source .venv/bin/activate   # macOS/Linux
 
 pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
+```
+
+### Frontend
+```bash
+cd evo2_gene_predictor_frontend
+npm install
+npm run dev
+```
+
+## Quick API example
+
+### Request
+POST http://localhost:8000/predict
+
+Headers
+Content-Type: application/json
+
+Body
+```json
+{
+  "assembly": "hg38",
+  "gene": "BRCA1",
+  "chrom": "17",
+  "position": 43045765,
+  "ref": "A",
+  "alt": "G"
+}
+```
+
+cURL
+```bash
+curl -X POST http://localhost:8000/predict \
+  -H "Content-Type: application/json" \
+  -d '{"assembly":"hg38","gene":"BRCA1","chrom":"17","position":43045765,"ref":"A","alt":"G"}'
+```
+
+Python
+```import requests
+
+url = "http://localhost:8000/predict"
+payload = {
+    "assembly": "hg38",
+    "gene": "BRCA1",
+    "chrom": "17",
+    "position": 43045765,
+    "ref": "A",
+    "alt": "G"
+}
+resp = requests.post(url, json=payload, timeout=30)
+print(resp.status_code)
+print(resp.json())
+```
+
+Example Response
+```bash
+{
+  "prediction": "pathogenic",
+  "confidence": 0.82,
+  "details": {
+    "notes": "model specific metadata may appear here"
+  }
+}
+```
+## Disclaimer
+
+This project is for learning and research only. Do not use it for medical decisions. Do not upload private or identifiable genomic data. Predictions are experimental and may be incorrect.
