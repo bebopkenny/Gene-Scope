@@ -1,5 +1,14 @@
 import sys
 import modal
+from pydantic import BaseModel
+
+
+class VariantRequest(BaseModel):
+    variant_position: int
+    alternative: str
+    genome: str
+    chromosome: str
+
 
 evo2_image = (  # Docker image
     modal.Image.from_registry(
@@ -304,7 +313,12 @@ class Evo2Model:
         print("Evo2 model loaded")
 
     @modal.fastapi_endpoint(method="POST")
-    def analyze_single_variant(self, variant_position: int, alternative: str, genome: str, chromosome: str):
+    def analyze_single_variant(self, request: VariantRequest):
+        variant_position = request.variant_position
+        alternative = request.alternative
+        genome = request.genome
+        chromosome = request.chromosome
+
         print(f"Genome: {genome}")
         print(f"Chromosome: {chromosome}")
         print(f"Variant position: {variant_position}")
@@ -347,6 +361,22 @@ class Evo2Model:
 
 @app.local_entrypoint()
 def main():
+    import requests
+
     evo2_model = Evo2Model()
-    result = evo2_model.analyze_single_variant.remote(
-        variant_position=43119628, alternative="G", genome="hg38", chromosome="chr17")
+
+    url = evo2_model.analyze_single_variant.web_url
+
+    payload = {
+        "variant_position": 43119628,
+        "alternative": "G",
+        "genome": "hg38",
+        "chromosome": "chr17",
+    }
+
+    headers = {"Content-Type": "application/json"}
+
+    response = requests.post(url, json=payload, headers=headers)
+    response.raise_for_status()
+    result = response.json()
+    print(result)
