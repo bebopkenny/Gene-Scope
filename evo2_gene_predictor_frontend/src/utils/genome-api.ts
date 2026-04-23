@@ -1,9 +1,4 @@
-import { Viaoda_Libre } from "next/font/google";
-
-
-const ANALYZE_SINGLE_VARIANT_BASE_URL = process.env.NEXT_PUBLIC_ANALYZE_SINGLE_VARIANT_BASE_URL;
-
-
+import { env } from "~/env.js";
 
 export interface GenomeAssemblyFromSearch {
     id: string,
@@ -69,7 +64,7 @@ export interface AnalysisResult {
   classification_confidence: number;
 }
 
-export async function getAvailbleGenomes() {
+export async function getAvailableGenomes() {
     const apiUrl = `https://api.genome.ucsc.edu/list/ucscGenomes`;
     const response = await fetch(apiUrl);
     if (!response.ok) {
@@ -102,7 +97,7 @@ export async function getAvailbleGenomes() {
 }
 
 
-export async function getGenomesChromosomes(genomeId: string) {
+export async function getGenomeChromosomes(genomeId: string) {
     const apiUrl = `https://api.genome.ucsc.edu/list/chromosomes?genome=${genomeId}`;
     const response = await fetch(apiUrl);
     if (!response.ok) {
@@ -363,7 +358,7 @@ export async function analyzeVariantWithAPI({
     chromosome: chromosome,
   });
 
-  const url = `${ANALYZE_SINGLE_VARIANT_BASE_URL}?${queryParams.toString()}`;
+  const url = `${env.NEXT_PUBLIC_ANALYZE_SINGLE_VARIANT_BASE_URL}?${queryParams.toString()}`;
 
   const response = await fetch(url, { method: "POST" });
 

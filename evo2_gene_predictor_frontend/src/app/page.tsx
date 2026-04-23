@@ -2,15 +2,13 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@radix-ui/react-select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import { Search } from "lucide-react";
-import Link from "next/link";
 import { useEffect, useState } from "react";
-import { queryObjects } from "v8";
 import GeneViewer from "~/components/gene-viewer";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~/components/ui/table";
-import { type ChromosomeFromSearch, type GeneFromSearch, type GenomeAssemblyFromSearch, getAvailbleGenomes, getGenomesChromosomes, searchGenes } from "~/utils/genome-api";
+import { type ChromosomeFromSearch, type GeneFromSearch, type GenomeAssemblyFromSearch, getAvailableGenomes, getGenomeChromosomes, searchGenes } from "~/utils/genome-api";
 
 type Mode = "browse" | "search"
 
@@ -30,7 +28,7 @@ export default function HomePage() {
     const fetchGenomes = async() => {
       try {
         setIsLoading(true)
-        const data = await getAvailbleGenomes();
+        const data = await getAvailableGenomes();
         if (data.genomes && data.genomes["Human"]) {
           setGenomes(data.genomes["Human"])
         }
@@ -47,7 +45,7 @@ export default function HomePage() {
     const fetchChromosomes = async() => {
       try {
         setIsLoading(true)
-        const data = await getGenomesChromosomes(selectedGenome);
+        const data = await getGenomeChromosomes(selectedGenome);
         setChromosomes(data.chromosomes)
         console.log(data.chromosomes)
         if (data.chromosomes.length > 0) {
@@ -93,7 +91,7 @@ export default function HomePage() {
     setSelectedGene(null);
   }
 
-  const swtichMode = (newMode: Mode) => {
+  const switchMode = (newMode: Mode) => {
     if (newMode === mode) return;
 
     setSearchResults([]);
@@ -119,7 +117,7 @@ export default function HomePage() {
   }
 
   
-  const loadBRAC1Example = () => {
+  const loadBRCA1Example = () => {
     setMode("search");
     setSearchQuery("BRCA1");
     performGeneSearch("BRCA1", selectedGenome);
@@ -132,7 +130,7 @@ export default function HomePage() {
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center gap-3">
           <div className="relative">
-            <h1 className="text-xl font-light tracking-wide text-[#3c4f3d">
+            <h1 className="text-xl font-light tracking-wide text-[#3c4f3d]">
               <span className="font-normal">EVO</span>
               <span className="text-[#de8246]">2</span>
             </h1>
@@ -174,7 +172,7 @@ export default function HomePage() {
               {genomes.map((genome) => (
                 <SelectItem key={genome.id} value={genome.id}>
                   {genome.id} - {genome.name}
-                  {genome.active ? " (active" : ""}
+                  {genome.active ? " (active)" : ""}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -199,9 +197,9 @@ export default function HomePage() {
           <CardContent className="pb-4">
             <Tabs 
               value={mode} 
-              onValueChange={(value) => swtichMode(value as Mode)}
+              onValueChange={(value) => switchMode(value as Mode)}
             >
-              <TabsList className="mb-4 bg-[#e9eeea}">
+              <TabsList className="mb-4 bg-[#e9eeea]">
                 <TabsTrigger className="data-[state=active]:bg-white data-[state=active]:text-[#3c4f3d]" value="search">
                   Search Genes
                 </TabsTrigger>
@@ -236,7 +234,7 @@ export default function HomePage() {
                     <Button 
                       variant="link" 
                       className="h-auto cursor-pointer p-0 text-[#de8246] hover:text-[#de8246]/80"
-                      onClick={loadBRAC1Example}
+                      onClick={loadBRCA1Example}
                     >
                         Try BRCA1 example
                     </Button>
@@ -250,7 +248,7 @@ export default function HomePage() {
                         key={chrom.name} 
                         variant="outline" 
                         size="sm" 
-                        className={`h-8 cursor-pinter hover-[#3c4f3d]/10 hover:bg-[#e9eeea] hover:text-[#3c4f3d] ${selectedChromosome === chrom.name ? "bg-[#e9eeea] text[#3c4f3d]" : ""}`}
+                        className={`h-8 cursor-pointer hover:bg-[#3c4f3d]/10 hover:text-[#3c4f3d] ${selectedChromosome === chrom.name ? "bg-[#e9eeea] text-[#3c4f3d]" : ""}`}
                         onClick={() => setSelectedChromosome(chrom.name)}
                       >{chrom.name}</Button>
                     ))}
@@ -261,7 +259,7 @@ export default function HomePage() {
 
             {isLoading && (
               <div className="flex justify-center py-4">
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#3c4f3d]/30 border-t-[#de8243]"></div>
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#3c4f3d]/30 border-t-[#de8246]"></div>
               </div>
             )}
 
