@@ -1,3 +1,4 @@
+import math
 import sys
 import modal
 from pydantic import BaseModel
@@ -288,10 +289,13 @@ def analyze_variant(relative_pos_in_window, reference, alternative, window_seq, 
 
     if delta_score < threshold:
         prediction = "Likely pathogenic"
-        confidence = min(1.0, abs(delta_score - threshold) / lof_std)
-    else: 
+        std = lof_std
+    else:
         prediction = "Likely benign"
-        confidence = min(1.0, abs(delta_score - threshold) / func_std)
+        std = func_std
+
+    z = abs(delta_score - threshold) / std
+    confidence = math.erf(z / math.sqrt(2))
 
     return {
         "reference": reference,
