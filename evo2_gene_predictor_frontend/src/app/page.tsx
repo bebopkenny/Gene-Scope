@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import GeneViewer from "~/components/gene-viewer";
+import { Hero } from "~/components/hero";
 import { ThemeToggle } from "~/components/theme-toggle";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -323,16 +324,7 @@ export default function HomePage() {
             )}
 
             {!isLoading && !error && searchResults.length === 0 && (
-              <div className="flex h-48 flex-col items-center justify-center text-center text-muted-foreground">
-                <Search className="mb-4 h-10 w-10 opacity-60"/>
-                <p className="text-sm leading-relaxed">
-                  {mode === "search"
-                  ? "Enter a gene or symbol and click search"
-                  : selectedChromosome
-                    ? "No genes found on this chromosome"
-                    : "Select a chromosome to view genes"}
-                </p>
-              </div>
+              <Hero mode={mode} selectedChromosome={selectedChromosome} />
             )}
           </CardContent>
         </Card>

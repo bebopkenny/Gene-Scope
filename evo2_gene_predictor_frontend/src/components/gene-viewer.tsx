@@ -11,7 +11,20 @@ import {
 } from "~/utils/genome-api";
 import { Button } from "./ui/button";
 import { ArrowLeft } from "lucide-react";
+import { motion } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
+
+const containerVariants = {
+  hidden: {},
+  show: {
+    transition: { staggerChildren: 0.08, delayChildren: 0.05 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 12 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as const } },
+};
 import { GeneInformation } from "./gene-information";
 import { GeneSequence } from "./gene-sequence";
 import KnownVariants from "./known-variants";
@@ -222,65 +235,80 @@ export default function GeneViewer({
   }
 
   return (
-    <div className="space-y-6">
-      <Button
-        variant="ghost"
-        size="sm"
-        className="cursor-pointer text-foreground hover:bg-accent hover:text-accent-foreground"
-        onClick={onClose}
-      >
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Back to results
-      </Button>
+    <motion.div
+      className="space-y-6"
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+    >
+      <motion.div variants={itemVariants}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="cursor-pointer text-foreground hover:bg-accent hover:text-accent-foreground"
+          onClick={onClose}
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to results
+        </Button>
+      </motion.div>
 
-      <VariantAnalysis
-        ref={variantAnalysisRef}
-        gene={gene}
-        genomeId={genomeId}
-        chromosome={gene.chrom}
-        clinvarVariants={clinvarVariants}
-        referenceSequence={activeReferenceNucleotide}
-        sequencePosition={activeSequencePosition}
-        geneBounds={geneBounds}
-      />
+      <motion.div variants={itemVariants}>
+        <VariantAnalysis
+          ref={variantAnalysisRef}
+          gene={gene}
+          genomeId={genomeId}
+          chromosome={gene.chrom}
+          clinvarVariants={clinvarVariants}
+          referenceSequence={activeReferenceNucleotide}
+          sequencePosition={activeSequencePosition}
+          geneBounds={geneBounds}
+        />
+      </motion.div>
 
-      <KnownVariants
-        refreshVariants={fetchClinvarVariants}
-        showComparison={showComparison}
-        updateClinvarVariant={updateClinvarVariant}
-        clinvarVariants={clinvarVariants}
-        isLoadingClinvar={isLoadingClinvar}
-        clinvarError={clinvarError}
-        genomeId={genomeId}
-        gene={gene}
-      />
+      <motion.div variants={itemVariants}>
+        <KnownVariants
+          refreshVariants={fetchClinvarVariants}
+          showComparison={showComparison}
+          updateClinvarVariant={updateClinvarVariant}
+          clinvarVariants={clinvarVariants}
+          isLoadingClinvar={isLoadingClinvar}
+          clinvarError={clinvarError}
+          genomeId={genomeId}
+          gene={gene}
+        />
+      </motion.div>
 
-      <GeneSequence
-        geneBounds={geneBounds}
-        geneDetail={geneDetail}
-        startPosition={startPosition}
-        endPosition={endPosition}
-        onStartPositionChange={setStartPosition}
-        onEndPositionChange={setEndPosition}
-        sequenceData={geneSequence}
-        sequenceRange={actualRange}
-        isLoading={isLoadingSequence}
-        error={error}
-        onSequenceLoadRequest={handleLoadSequence}
-        onSequenceClick={handleSequenceClick}
-        maxViewRange={10000}
-      />
+      <motion.div variants={itemVariants}>
+        <GeneSequence
+          geneBounds={geneBounds}
+          geneDetail={geneDetail}
+          startPosition={startPosition}
+          endPosition={endPosition}
+          onStartPositionChange={setStartPosition}
+          onEndPositionChange={setEndPosition}
+          sequenceData={geneSequence}
+          sequenceRange={actualRange}
+          isLoading={isLoadingSequence}
+          error={error}
+          onSequenceLoadRequest={handleLoadSequence}
+          onSequenceClick={handleSequenceClick}
+          maxViewRange={10000}
+        />
+      </motion.div>
 
-      <GeneInformation
-        gene={gene}
-        geneDetail={geneDetail}
-        geneBounds={geneBounds}
-      />
+      <motion.div variants={itemVariants}>
+        <GeneInformation
+          gene={gene}
+          geneDetail={geneDetail}
+          geneBounds={geneBounds}
+        />
+      </motion.div>
 
       <VariantComparisonModal
         comparisonVariant={comparisonVariant}
         onClose={() => setComparisonVariant(null)}
       />
-    </div>
+    </motion.div>
   );
 }

@@ -1,6 +1,7 @@
 import type { ClinvarVariant } from "~/utils/genome-api";
 import { Button } from "./ui/button";
 import { Check, ExternalLink, Shield, X } from "lucide-react";
+import { motion } from "motion/react";
 import {
   getClassificationColorClasses,
   getNucleotideColorClass,
@@ -175,13 +176,15 @@ export function VariantComparisonModal({
                         <div className="mb-1 text-xs text-muted-foreground">
                           Confidence:
                         </div>
-                        <div className="mt-1 h-2 w-full rounded-full bg-muted">
-                          <div
-                            className={`h-2 rounded-full ${comparisonVariant.evo2Result.prediction.includes("pathogenic") ? "bg-red-600" : "bg-green-600"}`}
-                            style={{
+                        <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-muted">
+                          <motion.div
+                            className={`h-2 rounded-full bg-gradient-to-r ${comparisonVariant.evo2Result.prediction.includes("pathogenic") ? "from-red-400 to-red-600" : "from-green-400 to-green-600"}`}
+                            initial={{ width: 0 }}
+                            animate={{
                               width: `${Math.min(100, comparisonVariant.evo2Result.classification_confidence * 100)}%`,
                             }}
-                          ></div>
+                            transition={{ duration: 0.8, ease: "easeOut" }}
+                          />
                         </div>
                         <div className="mt-1 text-right text-xs text-muted-foreground">
                           {Math.round(
