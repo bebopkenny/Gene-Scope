@@ -216,7 +216,7 @@ export default function GeneViewer({
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-gray-800"></div>
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-muted border-t-primary"></div>
       </div>
     );
   }
@@ -226,7 +226,7 @@ export default function GeneViewer({
       <Button
         variant="ghost"
         size="sm"
-        className="cursor-pointer text-[#3c4f3d] hover:bg-[#e9eeea]/70"
+        className="cursor-pointer text-foreground hover:bg-accent hover:text-accent-foreground"
         onClick={onClose}
       >
         <ArrowLeft className="mr-2 h-4 w-4" />

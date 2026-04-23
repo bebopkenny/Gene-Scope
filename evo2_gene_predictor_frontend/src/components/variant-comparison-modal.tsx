@@ -16,19 +16,19 @@ export function VariantComparisonModal({
   if (!comparisonVariant || !comparisonVariant.evo2Result) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-lg bg-white">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+      <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-lg border border-border bg-card shadow-lg">
         {/* Modal header */}
-        <div className="border-b border-[#3c4f3d]/10 p-5">
+        <div className="border-b border-border p-5">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-medium text-[#3c4f3d]">
+            <h3 className="text-lg font-medium text-foreground">
               Variant Analysis Comparison
             </h3>
             <Button
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="h-7 w-7 cursor-pointer p-0 text-[#3c4f3d]/70 hover:bg-[#9eeea]/70 hover:text-[#3c4f3d]"
+              className="h-7 w-7 cursor-pointer p-0 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
             >
               <X className="h-5 w-5" />
             </Button>
@@ -39,26 +39,26 @@ export function VariantComparisonModal({
         <div className="p-5">
           {comparisonVariant && comparisonVariant.evo2Result && (
             <div className="space-y-6">
-              <div className="rounded-md border border-[#3c4f3d]/10 bg-[#e9eeea]/30 p-4">
-                <h4 className="mb-3 text-sm font-medium text-[#3c4f3d]">
+              <div className="rounded-md border border-border bg-muted/40 p-4">
+                <h4 className="mb-3 text-sm font-medium text-foreground">
                   Variant Information
                 </h4>
                 <div className="grid gap-4 md:grid-cols-2">
                   <div>
                     <div className="space-y-2">
                       <div className="flex">
-                        <span className="w-28 text-xs text-[#3c4f3d]/70">
+                        <span className="w-28 text-xs text-muted-foreground">
                           Position:
                         </span>
-                        <span className="text-xs">
+                        <span className="text-xs text-foreground">
                           {comparisonVariant.location}
                         </span>
                       </div>
                       <div className="flex">
-                        <span className="w-28 text-xs text-[#3c4f3d]/70">
+                        <span className="w-28 text-xs text-muted-foreground">
                           Type:
                         </span>
-                        <span className="text-xs">
+                        <span className="text-xs text-foreground">
                           {comparisonVariant.variation_type}
                         </span>
                       </div>
@@ -68,10 +68,10 @@ export function VariantComparisonModal({
                   <div>
                     <div className="space-y-2">
                       <div className="flex">
-                        <span className="w-28 text-xs text-[#3c4f3d]/70">
+                        <span className="w-28 text-xs text-muted-foreground">
                           Variant:
                         </span>
-                        <span className="font-mono text-xs">
+                        <span className="font-mono text-xs text-foreground">
                           {(() => {
                             const match =
                               comparisonVariant.title.match(/(\w)>(\w)/);
@@ -98,17 +98,17 @@ export function VariantComparisonModal({
                         </span>
                       </div>
                       <div className="flex items-center">
-                        <span className="w-28 text-xs text-[#3c4f3d]/70">
+                        <span className="w-28 text-xs text-muted-foreground">
                           ClinVar ID:
                         </span>
                         <a
                           href={`https://www.ncbi.nlm.nih.gov/clinvar/variation/${comparisonVariant.clinvar_id}`}
-                          className="text-xs text-[#de8246] hover:underline"
+                          className="text-xs text-primary hover:underline"
                           target="_blank"
                         >
                           {comparisonVariant.clinvar_id}
                         </a>
-                        <ExternalLink className="ml-1 inline-block h-3 w-3 text-[#de8246]" />
+                        <ExternalLink className="ml-1 inline-block h-3 w-3 text-primary" />
                       </div>
                     </div>
                   </div>
@@ -117,16 +117,16 @@ export function VariantComparisonModal({
 
               {/* Variant results */}
               <div>
-                <h4 className="mb-3 text-sm font-medium text-[#3c4f3d]">
+                <h4 className="mb-3 text-sm font-medium text-foreground">
                   Analysis Comparison
                 </h4>
-                <div className="rounded-md border border-[#3c4f3d]/10 bg-white p-4">
+                <div className="rounded-md border border-border bg-card p-4">
                   <div className="grid gap-4 md:grid-cols-2">
                     {/* ClinVar Assesment */}
-                    <div className="rounded-md bg-[#e9eeea]/50 p-4">
-                      <h5 className="mb-2 flex items-center gap-2 text-xs font-medium text-[#3c4f3d]">
-                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#3c4f3d]/10">
-                          <span className="h-3 w-3 rounded-full bg-[#3c4f3d]"></span>
+                    <div className="rounded-md bg-muted/50 p-4">
+                      <h5 className="mb-2 flex items-center gap-2 text-xs font-medium text-foreground">
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/15">
+                          <span className="h-3 w-3 rounded-full bg-primary"></span>
                         </span>
                         ClinVar Assessment
                       </h5>
@@ -141,10 +141,10 @@ export function VariantComparisonModal({
                     </div>
 
                     {/* Evo2 Prediction */}
-                    <div className="rounded-md bg-[#e9eeea]/50 p-4">
-                      <h5 className="mb-2 flex items-center gap-2 text-xs font-medium text-[#3c4f3d]">
-                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#3c4f3d]/10">
-                          <span className="h-3 w-3 rounded-full bg-[#de8246]"></span>
+                    <div className="rounded-md bg-muted/50 p-4">
+                      <h5 className="mb-2 flex items-center gap-2 text-xs font-medium text-foreground">
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/15">
+                          <span className="h-3 w-3 rounded-full bg-primary"></span>
                         </span>
                         Evo2 Prediction
                       </h5>
@@ -158,13 +158,13 @@ export function VariantComparisonModal({
                       </div>
                       {/* Delta score */}
                       <div className="mt-3">
-                        <div className="mb-1 text-xs text-[#3c4f3d]/70">
+                        <div className="mb-1 text-xs text-muted-foreground">
                           Delta Likelihood Score:
                         </div>
-                        <div className="text-sm font-medium">
+                        <div className="text-sm font-medium text-foreground">
                           {comparisonVariant.evo2Result.delta_score.toFixed(6)}
                         </div>
-                        <div className="text-xs text-[#3c4f3d]/60">
+                        <div className="text-xs text-muted-foreground">
                           {comparisonVariant.evo2Result.delta_score < 0
                             ? "Negative score indicates loss of function"
                             : "Positive score indicated gain/neutral function"}
@@ -172,10 +172,10 @@ export function VariantComparisonModal({
                       </div>
                       {/* Confidence bar */}
                       <div className="mt-3">
-                        <div className="mb-1 text-xs text-[#3c4f3d]/70">
+                        <div className="mb-1 text-xs text-muted-foreground">
                           Confidence:
                         </div>
-                        <div className="mt-1 h-2 w-full rounded-full bg-[#e9eeea]/80">
+                        <div className="mt-1 h-2 w-full rounded-full bg-muted">
                           <div
                             className={`h-2 rounded-full ${comparisonVariant.evo2Result.prediction.includes("pathogenic") ? "bg-red-600" : "bg-green-600"}`}
                             style={{
@@ -183,7 +183,7 @@ export function VariantComparisonModal({
                             }}
                           ></div>
                         </div>
-                        <div className="mt-1 text-right text-xs text-[#3c4f3d]/60">
+                        <div className="mt-1 text-right text-xs text-muted-foreground">
                           {Math.round(
                             comparisonVariant.evo2Result
                               .classification_confidence * 100,
@@ -195,21 +195,21 @@ export function VariantComparisonModal({
                   </div>
 
                   {/* Assesment Agreement */}
-                  <div className="mt-4 rounded-md bg-[#e9eeea]/20 p-3 text-xs leading-relaxed">
+                  <div className="mt-4 rounded-md bg-muted/30 p-3 text-xs leading-relaxed">
                     <div className="flex items-center gap-2">
                       <span
-                        className={`flex h-5 w-5 items-center justify-center rounded-full ${comparisonVariant.classification.toLowerCase() === comparisonVariant.evo2Result.prediction.toLowerCase() ? "bg-green-100" : "bg-yellow-100"}`}
+                        className={`flex h-5 w-5 items-center justify-center rounded-full ${comparisonVariant.classification.toLowerCase() === comparisonVariant.evo2Result.prediction.toLowerCase() ? "bg-green-100 dark:bg-green-900/40" : "bg-yellow-100 dark:bg-yellow-900/40"}`}
                       >
                         {comparisonVariant.classification.toLowerCase() ===
                         comparisonVariant.evo2Result.prediction.toLowerCase() ? (
-                          <Check className="h-3 w-3 text-green-600" />
+                          <Check className="h-3 w-3 text-green-600 dark:text-green-400" />
                         ) : (
-                          <span className="flex h-3 w-3 items-center justify-center text-yellow-600">
+                          <span className="flex h-3 w-3 items-center justify-center text-yellow-600 dark:text-yellow-400">
                             <p>!</p>
                           </span>
                         )}
                       </span>
-                      <span className="font-medium text-[#3c4f3d]">
+                      <span className="font-medium text-foreground">
                         {comparisonVariant.classification.toLowerCase() ===
                         comparisonVariant.evo2Result.prediction.toLowerCase()
                           ? "Evo2 prediction agrees with ClinVar classification"
@@ -224,11 +224,11 @@ export function VariantComparisonModal({
         </div>
 
         {/* Modal footer */}
-        <div className="flex justify-end border-t border-[#3c4f3d]/10 bg-[#e9eeea]/30 p-4">
+        <div className="flex justify-end border-t border-border bg-muted/40 p-4">
           <Button
             variant="outline"
             onClick={onClose}
-            className="cursor-pointer border-[#3c4f3d]/10 bg-white text-[#3c4f3d] hover:bg-[#e9eeea]/70"
+            className="cursor-pointer border-border bg-background text-foreground hover:bg-accent hover:text-accent-foreground"
           >
             Close
           </Button>

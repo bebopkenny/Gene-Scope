@@ -101,9 +101,9 @@ export default function KnownVariants({
     }
   };
   return (
-    <Card className="gap-0 border-none bg-white py-0 shadow-sm">
+    <Card className="gap-0 border-none bg-card py-0 shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between pt-4 pb-2">
-        <CardTitle className="text-sm font-normal text-[#3c4f3d]/70">
+        <CardTitle className="text-sm font-normal text-muted-foreground">
           Known Variants in Gene from ClinVar
         </CardTitle>
         <Button
@@ -111,7 +111,7 @@ export default function KnownVariants({
           size="sm"
           onClick={refreshVariants}
           disabled={isLoadingClinvar}
-          className="h-7 cursor-pointer text-xs text-[#3c4f3d] hover:bg-[#e9eeea]/70"
+          className="h-7 cursor-pointer text-xs text-foreground hover:bg-accent hover:text-accent-foreground"
         >
           <RefreshCw className="mr-1 h-3 w-3" />
           Refresh
@@ -119,30 +119,30 @@ export default function KnownVariants({
       </CardHeader>
       <CardContent className="pb-4">
         {clinvarError && (
-          <div className="mb-4 rounded-md bg-red-50 p-3 text-xs text-red-600">
+          <div className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
             {clinvarError}
           </div>
         )}
 
         {isLoadingClinvar ? (
           <div className="flex justify-center py-6">
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#3c4f3d]/30 border-t-[#3c4f3d]"></div>
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted border-t-primary"></div>
           </div>
         ) : clinvarVariants.length > 0 ? (
-          <div className="h-96 max-h-96 overflow-y-scroll rounded-md border border-[#3c4f3d]/5">
+          <div className="h-96 max-h-96 overflow-y-scroll rounded-md border border-border">
             <Table>
               <TableHeader className="sticky top-0 z-10">
-                <TableRow className="bg-[#e9eeea]/80 hover:bg-[#e9eeea]/30">
-                  <TableHead className="py-2 text-xs font-medium text-[#3c4f3d]">
+                <TableRow className="bg-muted/70 hover:bg-muted">
+                  <TableHead className="py-2 text-xs font-medium text-foreground">
                     Variant
                   </TableHead>
-                  <TableHead className="py-2 text-xs font-medium text-[#3c4f3d]">
+                  <TableHead className="py-2 text-xs font-medium text-foreground">
                     Type
                   </TableHead>
-                  <TableHead className="py-2 text-xs font-medium text-[#3c4f3d]">
+                  <TableHead className="py-2 text-xs font-medium text-foreground">
                     Clinical Significance
                   </TableHead>
-                  <TableHead className="py-2 text-xs font-medium text-[#3c4f3d]">
+                  <TableHead className="py-2 text-xs font-medium text-foreground">
                     Actions
                   </TableHead>
                 </TableRow>
@@ -151,18 +151,18 @@ export default function KnownVariants({
                 {clinvarVariants.map((variant) => (
                   <TableRow
                     key={variant.clinvar_id}
-                    className="border-b border-[#3c4f3d]/5"
+                    className="border-b border-border"
                   >
                     <TableCell className="py-2">
-                      <div className="text-xs font-medium text-[#3c4f3d]">
+                      <div className="text-xs font-medium text-foreground">
                         {variant.title}
                       </div>
-                      <div className="mt-1 flex items-center gap-1 text-xs text-[#3c4f3d]/70">
+                      <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
                         <p>Location: {variant.location}</p>
                         <Button
                           variant="link"
                           size="sm"
-                          className="h-6 cursor-pointer px-0 text-xs text-[#de8246] hover:text-[#de8246]/80"
+                          className="h-6 cursor-pointer px-0 text-xs text-primary hover:text-primary/80"
                           onClick={() =>
                             window.open(
                               `https://www.ncbi.nlm.nih.gov/clinvar/variation/${variant.clinvar_id}`,
@@ -175,7 +175,7 @@ export default function KnownVariants({
                         </Button>
                       </div>
                     </TableCell>
-                    <TableCell className="py-2 text-xs">
+                    <TableCell className="py-2 text-xs text-foreground">
                       {variant.variation_type}
                     </TableCell>
                     <TableCell className="py-2 text-xs">
@@ -204,13 +204,13 @@ export default function KnownVariants({
                             <Button
                               variant="outline"
                               size="sm"
-                              className="h-7 cursor-pointer border-[#3c4f3d]/20 bg-[#e9eeea] px-3 text-xs text-[#3c4f3d] hover:bg-[#3c4f3d]/10"
+                              className="h-7 cursor-pointer border-border bg-background px-3 text-xs text-foreground hover:bg-accent hover:text-accent-foreground"
                               disabled={variant.isAnalyzing}
                               onClick={() => analyzeVariant(variant)}
                             >
                               {variant.isAnalyzing ? (
                                 <>
-                                  <span className="mr-1 inline-block h-3 w-3 animate-spin rounded-full border-2 border-[#3c4f3d]/30 border-t-[#3c4f3d]"></span>
+                                  <span className="mr-1 inline-block h-3 w-3 animate-spin rounded-full border-2 border-muted border-t-primary"></span>
                                   Analyzing...
                                 </>
                               ) : (
@@ -224,7 +224,7 @@ export default function KnownVariants({
                             <Button
                               variant="outline"
                               size="sm"
-                              className="h-7 cursor-pointer border-green-200 bg-green-50 px-3 text-xs text-green-700 hover:bg-green-100"
+                              className="h-7 cursor-pointer border-green-200 bg-green-50 px-3 text-xs text-green-700 hover:bg-green-100 dark:border-green-800/40 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/50"
                               onClick={() => showComparison(variant)}
                             >
                               <BarChart2 className="mr-1 inline-block h-3 w-3" />
@@ -240,8 +240,8 @@ export default function KnownVariants({
             </Table>
           </div>
         ) : (
-          <div className="flex h-48 flex-col items-center justify-center text-center text-gray-400">
-            <Search className="mb-4 h-10 w-10 text-gray-300" />
+          <div className="flex h-48 flex-col items-center justify-center text-center text-muted-foreground">
+            <Search className="mb-4 h-10 w-10 opacity-60" />
             <p className="text-sm leading-relaxed">
               No ClinVar variants found for this gene.
             </p>
