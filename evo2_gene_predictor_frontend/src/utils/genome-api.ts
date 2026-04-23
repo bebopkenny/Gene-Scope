@@ -351,16 +351,16 @@ export async function analyzeVariantWithAPI({
   genomeId: string;
   chromosome: string;
 }): Promise<AnalysisResult> {
-  const queryParams = new URLSearchParams({
-    variant_position: position.toString(),
-    alternative: alternative,
-    genome: genomeId,
-    chromosome: chromosome,
+  const response = await fetch(env.NEXT_PUBLIC_ANALYZE_SINGLE_VARIANT_BASE_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      variant_position: position,
+      alternative: alternative,
+      genome: genomeId,
+      chromosome: chromosome,
+    }),
   });
-
-  const url = `${env.NEXT_PUBLIC_ANALYZE_SINGLE_VARIANT_BASE_URL}?${queryParams.toString()}`;
-
-  const response = await fetch(url, { method: "POST" });
 
   if (!response.ok) {
     const errorText = await response.text();
