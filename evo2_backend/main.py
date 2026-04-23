@@ -253,12 +253,12 @@ def get_genome_sequence(position, genome: str, chromosome: str, window_size=8192
 
     if "dna" not in genome_data:
         error = genome_data.get("error", "Unknown error")
-        raise Exception(f"UCSC API errpr: {error}")
+        raise Exception(f"UCSC API error: {error}")
     
     sequence = genome_data.get("dna", "").upper()
     expected_length = end - start
     if len(sequence) != expected_length:
-        print(f"Warning: recieved sequence length ({len(sequence)}) differs from expected ({expected_length})")
+        print(f"Warning: received sequence length ({len(sequence)}) differs from expected ({expected_length})")
 
     print(f"Loaded reference genome sequence window (length: {len(sequence)} bases)")
 
@@ -278,10 +278,10 @@ def analyze_variant(relative_pos_in_window, reference, alternative, window_seq, 
     func_std = 0.0009016589
 
     if delta_score < threshold:
-        prediction = "Likely pathogentic"
+        prediction = "Likely pathogenic"
         confidence = min(1.0, abs(delta_score - threshold) / lof_std)
     else: 
-        prediction = "Likely bengin"
+        prediction = "Likely benign"
         confidence = min(1.0, abs(delta_score - threshold) / func_std)
 
     return {
