@@ -36,6 +36,14 @@ const GLOSSARY = {
     title: "Review status",
     body: "ClinVar's zero-to-four-star rating of how well supported a classification is. More stars mean several submitters agree or an expert panel has reviewed it.",
   },
+  alphafold: {
+    title: "AlphaFold",
+    body: "An AI system from Google DeepMind that predicts a protein's 3D shape from its amino acid sequence. Structures here come from the AlphaFold Protein Structure Database.",
+  },
+  plddt: {
+    title: "pLDDT",
+    body: "AlphaFold's confidence in each residue's position, from 0 to 100. Above 90 is very high and 70 to 90 is confident. Below 50 often marks flexible or disordered regions rather than a wrong prediction.",
+  },
   genomeAssembly: {
     title: "Genome assembly",
     body: "A specific version of the reference genome. Positions shift between versions, so hg38 and hg19 coordinates are not interchangeable.",

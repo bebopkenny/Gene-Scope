@@ -27,6 +27,7 @@ const itemVariants = {
 };
 import { GeneInformation } from "./gene-information";
 import { GeneSequence } from "./gene-sequence";
+import { ProteinStructure } from "./protein-structure";
 import KnownVariants from "./known-variants";
 import { VariantComparisonModal } from "./variant-comparison-modal";
 import VariantAnalysis, {
@@ -295,6 +296,10 @@ export default function GeneViewer({
           onSequenceClick={handleSequenceClick}
           maxViewRange={10000}
         />
+      </motion.div>
+
+      <motion.div variants={itemVariants}>
+        <ProteinStructure gene={gene} />
       </motion.div>
 
       <motion.div variants={itemVariants}>
