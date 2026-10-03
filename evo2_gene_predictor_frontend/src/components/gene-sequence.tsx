@@ -14,6 +14,7 @@ import {
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { getNucleotideColorClass } from "~/utils/coloring-utils";
+import { GlossaryTerm } from "./glossary-term";
 
 export function GeneSequence({
   geneBounds,
@@ -372,11 +373,13 @@ export function GeneSequence({
 
         <div className="mb-2 flex items-center justify-between text-xs">
           <span className="text-muted-foreground">
-            {geneDetail?.genomicinfo?.[0]?.strand === "+"
-              ? "Forward strand (5' -> 3')"
-              : geneDetail?.genomicinfo?.[0]?.strand === "-"
-                ? "Reverse strand (3' <- 5')"
-                : "Strand information not available"}
+            <GlossaryTerm term="strand">
+              {geneDetail?.genomicinfo?.[0]?.strand === "+"
+                ? "Forward strand (5' -> 3')"
+                : geneDetail?.genomicinfo?.[0]?.strand === "-"
+                  ? "Reverse strand (3' <- 5')"
+                  : "Strand information not available"}
+            </GlossaryTerm>
           </span>
           <span className="text-muted-foreground">
             Maximum window size: {maxViewRange.toLocaleString()} bp

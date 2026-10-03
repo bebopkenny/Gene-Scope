@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import GeneViewer from "~/components/gene-viewer";
+import { GlossaryTerm } from "~/components/glossary-term";
 import { Hero } from "~/components/hero";
 import { ThemeToggle } from "~/components/theme-toggle";
 import { Button } from "~/components/ui/button";
@@ -156,7 +157,7 @@ export default function HomePage() {
           <CardHeader className="pt-4 pb-2">
           <div className="flex items-center justify-between">
             <CardTitle className="text-sm font-normal text-muted-foreground">
-              Genome Assembly
+              <GlossaryTerm term="genomeAssembly">Genome Assembly</GlossaryTerm>
             </CardTitle>
             <div className="text-xs text-muted-foreground">Organism: <span className="font-medium text-foreground">Human</span></div>
           </div>

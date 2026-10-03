@@ -6,6 +6,7 @@ import {
   getClassificationColorClasses,
   getNucleotideColorClass,
 } from "~/utils/coloring-utils";
+import { GlossaryTerm } from "./glossary-term";
 
 export function VariantComparisonModal({
   comparisonVariant,
@@ -129,7 +130,8 @@ export function VariantComparisonModal({
                         <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/15">
                           <span className="h-3 w-3 rounded-full bg-primary"></span>
                         </span>
-                        ClinVar Assessment
+                        <GlossaryTerm term="clinvar">ClinVar</GlossaryTerm>{" "}
+                        Assessment
                       </h5>
                       <div className="mt-2">
                         <div
@@ -160,7 +162,10 @@ export function VariantComparisonModal({
                       {/* Delta score */}
                       <div className="mt-3">
                         <div className="mb-1 text-xs text-muted-foreground">
-                          Delta Likelihood Score:
+                          <GlossaryTerm term="deltaScore">
+                            Delta Likelihood Score
+                          </GlossaryTerm>
+                          :
                         </div>
                         <div className="text-sm font-medium text-foreground">
                           {comparisonVariant.evo2Result.delta_score.toFixed(6)}
@@ -174,7 +179,10 @@ export function VariantComparisonModal({
                       {/* Confidence bar */}
                       <div className="mt-3">
                         <div className="mb-1 text-xs text-muted-foreground">
-                          Confidence:
+                          <GlossaryTerm term="confidence">
+                            Confidence
+                          </GlossaryTerm>
+                          :
                         </div>
                         <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-muted">
                           <motion.div

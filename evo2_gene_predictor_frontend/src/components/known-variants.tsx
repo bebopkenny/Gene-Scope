@@ -25,6 +25,7 @@ import {
   Zap,
 } from "lucide-react";
 import { getClassificationColorClasses } from "~/utils/coloring-utils";
+import { GlossaryTerm } from "./glossary-term";
 
 export default function KnownVariants({
   refreshVariants,
@@ -104,7 +105,8 @@ export default function KnownVariants({
     <Card className="gap-0 border-none bg-card py-0 shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between pt-4 pb-2">
         <CardTitle className="text-sm font-normal text-muted-foreground">
-          Known Variants in Gene from ClinVar
+          Known Variants in Gene from{" "}
+          <GlossaryTerm term="clinvar">ClinVar</GlossaryTerm>
         </CardTitle>
         <Button
           variant="ghost"
@@ -140,7 +142,9 @@ export default function KnownVariants({
                     Type
                   </TableHead>
                   <TableHead className="py-2 text-xs font-medium text-foreground">
-                    Clinical Significance
+                    <GlossaryTerm term="clinicalSignificance">
+                      Clinical Significance
+                    </GlossaryTerm>
                   </TableHead>
                   <TableHead className="py-2 text-xs font-medium text-foreground">
                     Actions

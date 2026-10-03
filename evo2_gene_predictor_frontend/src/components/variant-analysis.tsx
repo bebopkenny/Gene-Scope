@@ -24,6 +24,7 @@ import {
 import { Button } from "./ui/button";
 import { match } from "node:assert";
 import { Zap } from "lucide-react";
+import { GlossaryTerm } from "./glossary-term";
 
 export interface VariantAnalysisHandle {
   focusAlternativeInput: () => void;
@@ -125,8 +126,8 @@ const VariantAnalysis = forwardRef<VariantAnalysisHandle, VariantAnalysisProps>(
         </CardHeader>
         <CardContent className="pb-4">
           <p className="mb-4 text-xs text-muted-foreground">
-            Predict the impact of genetic variants using the Evo2 deep learning
-            model.
+            Predict the impact of genetic variants using the{" "}
+            <GlossaryTerm term="evo2">Evo2</GlossaryTerm> deep learning model.
           </p>
           <div className="flex flex-wrap items-end gap-4">
             <div>
@@ -141,7 +142,9 @@ const VariantAnalysis = forwardRef<VariantAnalysisHandle, VariantAnalysisProps>(
             </div>
             <div>
               <label className="mb-1 block text-xs text-muted-foreground">
-                Alternative (variant)
+                <GlossaryTerm term="alternative">
+                  Alternative (variant)
+                </GlossaryTerm>
               </label>
               <Input
                 ref={alternativeInputRef}
@@ -312,7 +315,9 @@ const VariantAnalysis = forwardRef<VariantAnalysisHandle, VariantAnalysisProps>(
                   </div>
                   <div>
                     <div className="text-xs font-medium text-muted-foreground">
-                      Delta likelihood score
+                      <GlossaryTerm term="deltaScore">
+                        Delta likelihood score
+                      </GlossaryTerm>
                     </div>
                     <div className="text-sm text-foreground">
                       {variantResult.delta_score.toFixed(6)}
@@ -324,7 +329,7 @@ const VariantAnalysis = forwardRef<VariantAnalysisHandle, VariantAnalysisProps>(
                 </div>
                 <div>
                   <div className="text-xs font-medium text-muted-foreground">
-                    Prediction
+                    <GlossaryTerm term="prediction">Prediction</GlossaryTerm>
                   </div>
                   <div
                     className={`inline-block rounded-lg px-3 py-1 text-xs ${getClassificationColorClasses(variantResult.prediction)}`}
@@ -333,7 +338,7 @@ const VariantAnalysis = forwardRef<VariantAnalysisHandle, VariantAnalysisProps>(
                   </div>
                   <div className="mt-3">
                     <div className="text-xs font-medium text-muted-foreground">
-                      Confidence
+                      <GlossaryTerm term="confidence">Confidence</GlossaryTerm>
                     </div>
                     <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-muted">
                       <motion.div
