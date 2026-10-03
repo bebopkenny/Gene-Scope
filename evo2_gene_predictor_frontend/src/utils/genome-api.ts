@@ -43,6 +43,8 @@ export interface ClinvarVariant {
   title: string;
   variation_type: string;
   classification: string;
+  review_status: string;
+  review_stars: number;
   gene_sort: string;
   chromosome: string;
   location: string;
@@ -253,6 +255,17 @@ export async function fetchGeneSequence(chrom: string, start: number, end: numbe
     }
 }
 
+// ClinVar's 0-4 star rating of how well supported a classification is:
+// https://www.ncbi.nlm.nih.gov/clinvar/docs/review_status/
+export function getClinvarReviewStars(reviewStatus: string): number {
+  const status = reviewStatus.toLowerCase();
+  if (status.includes("practice guideline")) return 4;
+  if (status.includes("expert panel")) return 3;
+  if (status.includes("multiple submitters, no conflicts")) return 2;
+  if (status.startsWith("criteria provided")) return 1;
+  return 0;
+}
+
 export async function fetchClinvarVariants(
   chrom: string,
   geneBound: GeneBounds,
@@ -318,6 +331,8 @@ export async function fetchClinvarVariants(
   if (summaryData.result && summaryData.result.uids) {
     for (const id of summaryData.result.uids) {
       const variant = summaryData.result[id];
+      const reviewStatus: string =
+        variant.germline_classification?.review_status ?? "";
       variants.push({
         clinvar_id: id,
         title: variant.title,
@@ -329,7 +344,9 @@ export async function fetchClinvarVariants(
           )
           .join(" "),
         classification:
-          variant.germline_classification.description || "Unknown",
+          variant.germline_classification?.description || "Unknown",
+        review_status: reviewStatus,
+        review_stars: getClinvarReviewStars(reviewStatus),
         gene_sort: variant.gene_sort || "",
         chromosome: chromFormatted,
         location: variant.location_sort

@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { getClassificationColorClasses } from "~/utils/coloring-utils";
 import { GlossaryTerm } from "./glossary-term";
+import { ReviewStars } from "./review-stars";
 
 export default function KnownVariants({
   refreshVariants,
@@ -187,6 +188,12 @@ export default function KnownVariants({
                         className={`w-fit rounded-md px-2 py-1 text-center font-normal ${getClassificationColorClasses(variant.classification)}`}
                       >
                         {variant.classification || "Unknown"}
+                      </div>
+                      <div className="mt-1.5">
+                        <ReviewStars
+                          stars={variant.review_stars}
+                          status={variant.review_status}
+                        />
                       </div>
                       {variant.evo2Result && (
                         <div className="mt-2">

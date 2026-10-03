@@ -32,6 +32,10 @@ const GLOSSARY = {
     title: "Clinical significance",
     body: "ClinVar's summary of the submitted interpretations: pathogenic (disease-causing), benign (harmless), or uncertain when the evidence is not enough to say.",
   },
+  reviewStatus: {
+    title: "Review status",
+    body: "ClinVar's zero-to-four-star rating of how well supported a classification is. More stars mean several submitters agree or an expert panel has reviewed it.",
+  },
   genomeAssembly: {
     title: "Genome assembly",
     body: "A specific version of the reference genome. Positions shift between versions, so hg38 and hg19 coordinates are not interchangeable.",

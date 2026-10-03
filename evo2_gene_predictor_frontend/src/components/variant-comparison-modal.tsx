@@ -7,6 +7,7 @@ import {
   getNucleotideColorClass,
 } from "~/utils/coloring-utils";
 import { GlossaryTerm } from "./glossary-term";
+import { ReviewStars } from "./review-stars";
 
 export function VariantComparisonModal({
   comparisonVariant,
@@ -140,6 +141,18 @@ export function VariantComparisonModal({
                           {comparisonVariant.classification ||
                             "Unknown significance"}
                         </div>
+                      </div>
+                      <div className="mt-3">
+                        <div className="mb-1 text-xs text-muted-foreground">
+                          <GlossaryTerm term="reviewStatus">
+                            Review status
+                          </GlossaryTerm>
+                          :
+                        </div>
+                        <ReviewStars
+                          stars={comparisonVariant.review_stars}
+                          status={comparisonVariant.review_status}
+                        />
                       </div>
                     </div>
 
