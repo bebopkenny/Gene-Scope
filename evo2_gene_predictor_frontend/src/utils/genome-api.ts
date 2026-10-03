@@ -167,10 +167,10 @@ export async function searchGenes(query: string, genome: string) {
                 chrom = `chr${chrom}`;
             }
             results.push({
-                symbol: display[2],
-                name: display[3],
+                symbol: display[1],
+                name: display[2],
                 chrom,
-                description: display[3],
+                description: display[2],
                 gene_id: geneIds[i] || "",
             });
             } catch {
