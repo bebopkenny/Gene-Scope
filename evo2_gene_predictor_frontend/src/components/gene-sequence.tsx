@@ -15,6 +15,7 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { getNucleotideColorClass } from "~/utils/coloring-utils";
 import { GlossaryTerm } from "./glossary-term";
+import { LikelihoodTrack } from "./likelihood-track";
 
 export function GeneSequence({
   geneBounds,
@@ -30,6 +31,8 @@ export function GeneSequence({
   onSequenceLoadRequest,
   onSequenceClick,
   maxViewRange,
+  genomeId,
+  chromosome,
 }: {
   geneBounds: GeneBounds | null;
   geneDetail: GeneDetailsFromSearch | null;
@@ -44,6 +47,8 @@ export function GeneSequence({
   onSequenceLoadRequest: () => void;
   onSequenceClick: (position: number, nucleotide: string) => void;
   maxViewRange: number;
+  genomeId: string;
+  chromosome: string;
 }) {
   const [sliderValues, setSliderValues] = useState({ start: 60, end: 70 });
   const [isDraggingStart, setIsDraggingStart] = useState(false);
@@ -441,6 +446,14 @@ export function GeneSequence({
             <span className="text-xs text-muted-foreground">C</span>
           </div>
         </div>
+
+        <LikelihoodTrack
+          sequenceData={sequenceData}
+          sequenceRange={sequenceRange}
+          genomeId={genomeId}
+          chromosome={chromosome}
+          onPositionClick={onSequenceClick}
+        />
       </CardContent>
     </Card>
   );

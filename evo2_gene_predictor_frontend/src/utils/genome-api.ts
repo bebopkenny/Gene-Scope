@@ -57,6 +57,13 @@ export interface ClinvarVariant {
   evo2Error?: string;
 }
 
+export interface RegionScores {
+  start: number;
+  end: number;
+  // Log likelihood of each base given the bases before it, null where there is no context
+  scores: (number | null)[];
+}
+
 export interface AnalysisResult {
   position: number;
   reference: string;
@@ -384,6 +391,51 @@ export async function analyzeVariantWithAPI({
   if (!response.ok) {
     const errorText = await response.text();
     throw new Error("Failed to analyze variant " + errorText);
+  }
+
+  return await response.json();
+}
+
+// Modal gives each endpoint its own URL, differing only in the method name
+function getScoreRegionUrl(): string | null {
+  if (env.NEXT_PUBLIC_SCORE_REGION_URL) return env.NEXT_PUBLIC_SCORE_REGION_URL;
+
+  const analyzeUrl = env.NEXT_PUBLIC_ANALYZE_SINGLE_VARIANT_BASE_URL;
+  return analyzeUrl.includes("analyze-single-variant")
+    ? analyzeUrl.replace("analyze-single-variant", "score-region")
+    : null;
+}
+
+export async function scoreRegionWithAPI({
+  start,
+  end,
+  genomeId,
+  chromosome,
+}: {
+  start: number;
+  end: number;
+  genomeId: string;
+  chromosome: string;
+}): Promise<RegionScores> {
+  const url = getScoreRegionUrl();
+  if (!url) {
+    throw new Error("Region scoring endpoint is not configured");
+  }
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      start: start,
+      end: end,
+      genome: genomeId,
+      chromosome: chromosome,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error("Failed to score region " + errorText);
   }
 
   return await response.json();

@@ -20,6 +20,10 @@ const GLOSSARY = {
     title: "Confidence",
     body: "How far the delta score sits from the pathogenic/benign cut-off, scaled by the spread seen in the BRCA1 calibration data. Higher means further from the borderline.",
   },
+  likelihoodTrack: {
+    title: "Evo 2 likelihood track",
+    body: "The probability Evo 2 gives each reference base, judged from the DNA before it. Tall bars are bases the model strongly expects. Short bars are positions it finds hard to predict.",
+  },
   alternative: {
     title: "Alternative base",
     body: "The DNA letter that replaces the reference base in the variant you want to test.",

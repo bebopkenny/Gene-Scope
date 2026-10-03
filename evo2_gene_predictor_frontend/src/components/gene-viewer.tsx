@@ -295,6 +295,8 @@ export default function GeneViewer({
           onSequenceLoadRequest={handleLoadSequence}
           onSequenceClick={handleSequenceClick}
           maxViewRange={10000}
+          genomeId={genomeId}
+          chromosome={gene.chrom}
         />
       </motion.div>
 
