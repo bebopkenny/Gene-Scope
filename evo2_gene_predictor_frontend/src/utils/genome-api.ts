@@ -207,6 +207,8 @@ export async function fetchGeneDetails(
             if (detail.genomicinfo && detail.genomicinfo.length > 0) {
                 const info = detail.genomicinfo[0];
 
+                // NCBI omits the strand but lists start/stop in the direction of transcription
+                info.strand ??= info.chrstart > info.chrstop ? "-" : "+";
 
                 const minPos = Math.min(info.chrstart, info.chrstop)
                 const maxPos = Math.max(info.chrstart, info.chrstop)
