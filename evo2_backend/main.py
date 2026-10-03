@@ -11,6 +11,13 @@ class VariantRequest(BaseModel):
     chromosome: str
 
 
+class RegionRequest(BaseModel):
+    start: int
+    end: int
+    genome: str
+    chromosome: str
+
+
 evo2_image = (  # Docker image
     modal.Image.from_registry(
         "nvidia/cuda:12.4.0-devel-ubuntu22.04", add_python="3.12"
@@ -243,6 +250,9 @@ def brca1_example():
         plt.axis("off")
         plt.show()
 
+MAX_REGION_SIZE = 10000
+REGION_CONTEXT_SIZE = 4096
+
 def get_genome_sequence(position, genome: str, chromosome: str, window_size=8192):
     import requests 
 
@@ -306,6 +316,58 @@ def analyze_variant(relative_pos_in_window, reference, alternative, window_seq, 
     }
     # Confidence params: {'threshold': np.float32(-0.0009178519), 'lof_std': np
 
+def get_genome_region(start, end, genome: str, chromosome: str):
+    import requests
+
+    print(f"-- Fetching {chromosome}:{start}-{end} ({genome}) from UCSC API-- ")
+
+    api_url = f"https://api.genome.ucsc.edu/getData/sequence?genome={genome};chrom={chromosome};start={start};end={end}"
+    response = requests.get(api_url)
+
+    if response.status_code != 200:
+        raise Exception(f"Failed to fetch genome sequence from UCSC API: {response.status_code}")
+
+    genome_data = response.json()
+
+    if "dna" not in genome_data:
+        error = genome_data.get("error", "Unknown error")
+        raise Exception(f"UCSC API error: {error}")
+
+    return genome_data.get("dna", "").upper()
+
+def score_positions(sequence, model):
+    import torch
+    from evo2.scoring import prepare_batch, logits_to_logprobs
+
+    input_ids, _ = prepare_batch([sequence], model.tokenizer)
+
+    with torch.inference_mode():
+        logits, _ = model.model(input_ids)
+
+    # Log likelihood of each base given the bases before it, so the first base has no score
+    logprobs = logits_to_logprobs(logits, input_ids)
+
+    return [round(score, 4) for score in logprobs[0].float().cpu().tolist()]
+
+def score_region_positions(start, end, genome: str, chromosome: str, model):
+    # Evo2 reads left to right, so bases upstream of the region give its first positions context
+    context_start = max(0, start - 1 - REGION_CONTEXT_SIZE)
+    sequence = get_genome_region(context_start, end, genome, chromosome)
+
+    logprobs = score_positions(sequence, model)
+
+    region_offset = start - 1 - context_start
+    scores = [
+        logprobs[i - 1] if i > 0 else None
+        for i in range(region_offset, len(sequence))
+    ]
+
+    return {
+        "start": start,
+        "end": start + len(scores) - 1,
+        "scores": scores,
+    }
+
 
 @app.cls(gpu="H100", volumes={mount_path: volume}, max_containers=3, retries=2, scaledown_window=120)
 class Evo2Model:
@@ -360,6 +422,32 @@ class Evo2Model:
         result["position"] = variant_position 
 
         return result
+
+    @modal.fastapi_endpoint(method="POST")
+    def score_region(self, request: RegionRequest):
+        from fastapi import HTTPException
+
+        start = request.start
+        end = request.end
+        genome = request.genome
+        chromosome = request.chromosome
+
+        print(f"Genome: {genome}")
+        print(f"Region: {chromosome}:{start}-{end}")
+
+        if start < 1 or end < start:
+            raise HTTPException(status_code=400, detail="start and end must be 1-based positions with start <= end")
+
+        if end - start + 1 > MAX_REGION_SIZE:
+            raise HTTPException(status_code=400, detail=f"Region exceeds the maximum size of {MAX_REGION_SIZE} bp")
+
+        return score_region_positions(
+            start=start,
+            end=end,
+            genome=genome,
+            chromosome=chromosome,
+            model=self.model,
+        )
 
         
 
