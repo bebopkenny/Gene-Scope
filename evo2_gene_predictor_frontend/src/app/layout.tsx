@@ -7,7 +7,6 @@ import { ThemeProvider } from "~/components/theme-provider";
 export const metadata: Metadata = {
   title: "Evo2 Gene Scope",
   description: "Evo2 Gene Scope",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
 const geist = Geist({
