@@ -453,7 +453,8 @@ class Evo2Model:
 
 @app.local_entrypoint()
 def main():
-    import requests
+    # httpx comes with fastapi[standard], so nothing extra to install locally
+    import httpx
 
     evo2_model = Evo2Model()
 
@@ -467,8 +468,10 @@ def main():
     }
 
     headers = {"Content-Type": "application/json"}
+    # A cold start can outlast Modal's 150 second request window, which answers with a redirect
+    request_options = {"headers": headers, "timeout": 900, "follow_redirects": True}
 
-    response = requests.post(url, json=payload, headers=headers)
+    response = httpx.post(url, json=payload, **request_options)
     response.raise_for_status()
     result = response.json()
     print(result)
@@ -482,7 +485,7 @@ def main():
         "chromosome": "chr17",
     }
 
-    response = requests.post(region_url, json=region_payload, headers=headers)
+    response = httpx.post(region_url, json=region_payload, **request_options)
     response.raise_for_status()
     region = response.json()
     print(f"Scored {len(region['scores'])} positions from {region['start']} to {region['end']}")
