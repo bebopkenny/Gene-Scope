@@ -86,10 +86,11 @@ export function LikelihoodTrack({
     const styles = getComputedStyle(canvas);
     context.fillStyle = styles.getPropertyValue("--primary").trim();
 
-    // One bar per pixel column, averaging the bases that share a column
-    const columns = Math.min(width, probabilities.length);
-    const columnWidth = width / columns;
-    const gap = columnWidth > 3 ? 1 : 0;
+    // One bar per base when there is room, otherwise one per pixel column,
+    // averaging the bases that share it. Edges land on whole pixels to avoid seams.
+    const hasRoom = width / probabilities.length > 3;
+    const columns = hasRoom ? probabilities.length : width;
+    const gap = hasRoom ? 1 : 0;
 
     for (let column = 0; column < columns; column++) {
       const from = Math.floor((column * probabilities.length) / columns);
@@ -109,17 +110,19 @@ export function LikelihoodTrack({
       }
       if (count === 0) continue;
 
+      const left = Math.round((column * width) / columns);
+      const right = Math.round(((column + 1) * width) / columns);
       const barHeight = (sum / count) * TRACK_HEIGHT;
       context.fillRect(
-        column * columnWidth,
+        left,
         TRACK_HEIGHT - barHeight,
-        columnWidth - gap,
+        right - left - gap,
         barHeight,
       );
     }
 
     const chanceY = Math.round(TRACK_HEIGHT * (1 - CHANCE_LEVEL)) + 0.5;
-    context.strokeStyle = styles.getPropertyValue("--muted-foreground").trim();
+    context.strokeStyle = styles.getPropertyValue("--foreground").trim();
     context.lineWidth = 1;
     context.setLineDash([4, 4]);
     context.beginPath();
