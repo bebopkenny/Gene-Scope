@@ -3,6 +3,8 @@ export interface ProteinStructure {
   proteinName: string;
   residueCount: number;
   meanPlddt: number;
+  // One-letter amino acids, starting at residue 1
+  sequence: string;
   pdbUrl: string;
   entryUrl: string;
 }
@@ -20,6 +22,7 @@ interface AlphaFoldPrediction {
   uniprotStart: number;
   uniprotEnd: number;
   globalMetricValue: number;
+  sequence: string;
   pdbUrl: string;
 }
 
@@ -71,6 +74,7 @@ export async function fetchProteinStructure(
       proteinName: prediction.uniprotDescription,
       residueCount: prediction.uniprotEnd - prediction.uniprotStart + 1,
       meanPlddt: prediction.globalMetricValue,
+      sequence: prediction.sequence,
       pdbUrl: prediction.pdbUrl,
       entryUrl: `https://alphafold.ebi.ac.uk/entry/${accession}`,
     },
@@ -83,4 +87,105 @@ export async function fetchPdb(pdbUrl: string): Promise<string> {
     throw new Error("Failed to download structure: " + response.statusText);
   }
   return response.text();
+}
+
+export interface ProteinConsequence {
+  // Sequence Ontology terms in plain words, e.g. "missense variant"
+  consequence: string;
+  // HGVS protein change such as "p.Cys61Gly", null when no residue is affected
+  proteinChange: string | null;
+  residue: number | null;
+  referenceAminoAcid: string | null;
+  // UniProt accession of the protein the transcript encodes
+  accession: string | null;
+}
+
+export type ProteinConsequenceLookup =
+  | { status: "found"; consequence: ProteinConsequence }
+  | { status: "unsupported-assembly" }
+  // No transcript of the gene covers the position
+  | { status: "no-transcript" };
+
+// Ensembl serves each human assembly from its own host
+const ENSEMBL_SERVERS: Record<string, string> = {
+  hg38: "https://rest.ensembl.org",
+  hg19: "https://grch37.rest.ensembl.org",
+};
+
+// Ensembl can time out the first time it sees a variant, then answer a retry at once
+async function fetchWithRetry(url: string, retries = 1): Promise<Response> {
+  try {
+    const response = await fetch(url);
+    if (response.status < 500 || retries === 0) return response;
+  } catch (err) {
+    if (retries === 0) throw err;
+  }
+
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  return fetchWithRetry(url, retries - 1);
+}
+
+interface VepTranscriptConsequence {
+  gene_symbol?: string;
+  canonical?: number;
+  consequence_terms: string[];
+  protein_start?: number;
+  amino_acids?: string;
+  hgvsp?: string;
+  swissprot?: string[];
+}
+
+export async function fetchProteinConsequence({
+  position,
+  alternative,
+  genomeId,
+  chromosome,
+  geneSymbol,
+}: {
+  position: number;
+  alternative: string;
+  genomeId: string;
+  chromosome: string;
+  geneSymbol: string;
+}): Promise<ProteinConsequenceLookup> {
+  const server = ENSEMBL_SERVERS[genomeId];
+  if (!server) return { status: "unsupported-assembly" };
+
+  // The alternative base is given on the forward strand, hence the ":1"
+  const region = `${chromosome.replace(/^chr/i, "")}:${position}-${position}:1/${alternative}`;
+  const params = new URLSearchParams({
+    "content-type": "application/json",
+    canonical: "1",
+    hgvs: "1",
+    uniprot: "1",
+  });
+  const response = await fetchWithRetry(
+    `${server}/vep/human/region/${region}?${params.toString()}`,
+  );
+  if (!response.ok) {
+    throw new Error("Ensembl VEP lookup failed: " + response.statusText);
+  }
+
+  const data = (await response.json()) as {
+    transcript_consequences?: VepTranscriptConsequence[];
+  }[];
+  const transcript = data[0]?.transcript_consequences?.find(
+    (t) => t.canonical === 1 && t.gene_symbol === geneSymbol,
+  );
+  if (!transcript) return { status: "no-transcript" };
+
+  const proteinChange = transcript.hgvsp?.split(":")[1];
+
+  return {
+    status: "found",
+    consequence: {
+      consequence: transcript.consequence_terms
+        .map((term) => term.replaceAll("_", " "))
+        .join(", "),
+      proteinChange: proteinChange ? decodeURIComponent(proteinChange) : null,
+      residue: transcript.protein_start ?? null,
+      referenceAminoAcid: transcript.amino_acids?.split("/")[0] ?? null,
+      accession: transcript.swissprot?.[0]?.split(".")[0] ?? null,
+    },
+  };
 }

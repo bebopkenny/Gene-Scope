@@ -6,7 +6,9 @@ import { useEffect, useRef, useState } from "react";
 import type { GeneFromSearch } from "~/utils/genome-api";
 import {
   fetchPdb,
+  fetchProteinConsequence,
   fetchProteinStructure,
+  type ProteinConsequenceLookup,
   type ProteinStructureLookup,
 } from "~/utils/protein-api";
 import { GlossaryTerm } from "./glossary-term";
@@ -28,6 +30,16 @@ const VIEW_STYLES = [
 
 type ViewStyle = (typeof VIEW_STYLES)[number]["id"];
 
+// Stands apart from every pLDDT band color
+const VARIANT_COLOR = "#d946ef";
+// Ångströms of surrounding structure to keep in view around the variant residue
+const VARIANT_ZOOM_RADIUS = 20;
+
+export interface SubmittedVariant {
+  position: number;
+  alternative: string;
+}
+
 interface HoveredResidue {
   name: string;
   number: number;
@@ -40,13 +52,25 @@ function plddtColor(atom: { b: number }) {
     .color;
 }
 
-export function ProteinStructure({ gene }: { gene: GeneFromSearch }) {
+export function ProteinStructure({
+  gene,
+  genomeId,
+  variant,
+}: {
+  gene: GeneFromSearch;
+  genomeId: string;
+  variant: SubmittedVariant | null;
+}) {
   const [lookup, setLookup] = useState<ProteinStructureLookup | null>(null);
   const [isLoading, setIsLoading] = useState(Boolean(gene.gene_id));
   const [isModelReady, setIsModelReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [viewStyle, setViewStyle] = useState<ViewStyle>("cartoon");
   const [hovered, setHovered] = useState<HoveredResidue | null>(null);
+  const [consequenceLookup, setConsequenceLookup] =
+    useState<ProteinConsequenceLookup | null>(null);
+  const [isLoadingConsequence, setIsLoadingConsequence] = useState(false);
+  const [consequenceError, setConsequenceError] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<GLViewer | null>(null);
@@ -77,6 +101,79 @@ export function ProteinStructure({ gene }: { gene: GeneFromSearch }) {
   }, [gene.gene_id]);
 
   const structure = lookup?.status === "found" ? lookup.structure : null;
+
+  useEffect(() => {
+    setConsequenceLookup(null);
+    setConsequenceError(false);
+    if (!variant) return;
+    let cancelled = false;
+
+    const lookupConsequence = async () => {
+      setIsLoadingConsequence(true);
+
+      try {
+        const result = await fetchProteinConsequence({
+          position: variant.position,
+          alternative: variant.alternative,
+          genomeId,
+          chromosome: gene.chrom,
+          geneSymbol: gene.symbol,
+        });
+        if (!cancelled) setConsequenceLookup(result);
+      } catch {
+        if (!cancelled) setConsequenceError(true);
+      } finally {
+        if (!cancelled) setIsLoadingConsequence(false);
+      }
+    };
+
+    void lookupConsequence();
+    return () => {
+      cancelled = true;
+    };
+  }, [variant, genomeId, gene.chrom, gene.symbol]);
+
+  const consequence =
+    consequenceLookup?.status === "found"
+      ? consequenceLookup.consequence
+      : null;
+
+  // Only mark the residue when the transcript's protein is the one that was modelled
+  const variantResidue =
+    structure &&
+    consequence?.residue != null &&
+    (consequence.accession ?? structure.accession) === structure.accession &&
+    structure.sequence[consequence.residue - 1] ===
+      consequence.referenceAminoAcid
+      ? consequence.residue
+      : null;
+  const variantLabel =
+    consequence?.proteinChange?.replace(/^p\./, "") ??
+    `Residue ${variantResidue}`;
+
+  const describeConsequence = () => {
+    if (isLoadingConsequence) return "looking up its effect on the protein...";
+    if (consequenceError)
+      return "its effect on the protein could not be looked up.";
+    if (consequenceLookup?.status === "unsupported-assembly") {
+      return "protein effects can only be looked up for hg38 and hg19.";
+    }
+    if (consequenceLookup?.status === "no-transcript") {
+      return `no ${gene.symbol} transcript covers this position.`;
+    }
+    if (!consequence) return null;
+
+    if (consequence.residue === null) {
+      return `${consequence.consequence}. It falls outside the coding sequence, so no residue is marked.`;
+    }
+
+    const change = consequence.proteinChange
+      ? `${consequence.consequence}, ${consequence.proteinChange}.`
+      : `${consequence.consequence}.`;
+    return variantResidue !== null
+      ? `${change} Residue ${variantResidue} is marked in the structure.`
+      : `${change} The transcript's protein differs from the modelled sequence there, so no residue is marked.`;
+  };
 
   useEffect(() => {
     const container = containerRef.current;
@@ -148,8 +245,44 @@ export function ProteinStructure({ gene }: { gene: GeneFromSearch }) {
         ? { cartoon: { colorfunc: plddtColor } }
         : { stick: { colorfunc: plddtColor, radius: 0.2 } },
     );
+
+    viewer.removeAllLabels();
+    if (variantResidue !== null) {
+      viewer.addStyle(
+        { resi: variantResidue },
+        { sphere: { color: VARIANT_COLOR } },
+      );
+
+      const { x, y, z } =
+        viewer.selectedAtoms({ resi: variantResidue, atom: "CA" })[0] ?? {};
+      if (x != null && y != null && z != null) {
+        viewer.addLabel(variantLabel, {
+          position: { x, y, z },
+          inFront: true,
+          fontSize: 12,
+          fontColor: "white",
+          backgroundColor: VARIANT_COLOR,
+          backgroundOpacity: 1,
+        });
+      }
+    }
     viewer.render();
-  }, [viewStyle, isModelReady]);
+  }, [viewStyle, isModelReady, variantResidue, variantLabel]);
+
+  useEffect(() => {
+    const viewer = viewerRef.current;
+    if (!isModelReady || !viewer || variantResidue === null) return;
+
+    viewer.zoomTo(
+      {
+        within: {
+          distance: VARIANT_ZOOM_RADIUS,
+          sel: { resi: variantResidue },
+        },
+      },
+      600,
+    );
+  }, [isModelReady, variantResidue]);
 
   return (
     <Card className="bg-card gap-0 border-none py-0 shadow-sm">
@@ -188,6 +321,16 @@ export function ProteinStructure({ gene }: { gene: GeneFromSearch }) {
               {structure.meanPlddt.toFixed(1)}
             </p>
 
+            {variant && (
+              <div className="border-border bg-muted/40 text-foreground mb-3 rounded-md border p-3 text-xs leading-relaxed">
+                <span className="text-muted-foreground">
+                  Analyzed variant {variant.position.toLocaleString()} to{" "}
+                  {variant.alternative}:
+                </span>{" "}
+                {describeConsequence()}
+              </div>
+            )}
+
             <div
               className="bg-muted/60 relative h-96 w-full overflow-hidden rounded-md"
               // Let the page scroll past the viewer; zooming needs Ctrl or a pinch
@@ -216,6 +359,14 @@ export function ProteinStructure({ gene }: { gene: GeneFromSearch }) {
                       {style.label}
                     </Button>
                   ))}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-border bg-background text-foreground hover:bg-accent hover:text-accent-foreground h-7 cursor-pointer px-3 text-xs"
+                    onClick={() => viewerRef.current?.zoomTo({}, 600)}
+                  >
+                    Reset view
+                  </Button>
                 </div>
               )}
 
@@ -240,6 +391,17 @@ export function ProteinStructure({ gene }: { gene: GeneFromSearch }) {
                     </span>
                   </div>
                 ))}
+                {variantResidue !== null && (
+                  <div className="flex items-center gap-1">
+                    <div
+                      className="h-3 w-3 rounded-full"
+                      style={{ backgroundColor: VARIANT_COLOR }}
+                    ></div>
+                    <span className="text-muted-foreground text-xs">
+                      Analyzed variant
+                    </span>
+                  </div>
+                )}
               </div>
               <span className="text-muted-foreground text-xs">
                 Drag to rotate · Ctrl + scroll to zoom
@@ -248,8 +410,8 @@ export function ProteinStructure({ gene }: { gene: GeneFromSearch }) {
 
             <p className="text-muted-foreground mt-3 text-xs leading-relaxed">
               <GlossaryTerm term="alphafold">AlphaFold</GlossaryTerm> prediction
-              for the reference protein. It does not change with the variant
-              being analyzed.
+              for the reference protein. Analyzing a coding variant marks the
+              residue it changes, but the shape shown stays the reference one.
             </p>
           </>
         ) : isLoading ? (

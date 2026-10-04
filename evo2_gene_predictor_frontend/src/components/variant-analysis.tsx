@@ -38,6 +38,7 @@ interface VariantAnalysisProps {
   referenceSequence: string | null;
   sequencePosition: number | null;
   geneBounds: GeneBounds | null;
+  onVariantSubmit: (position: number, alternative: string) => void;
 }
 
 const VariantAnalysis = forwardRef<VariantAnalysisHandle, VariantAnalysisProps>(
@@ -50,6 +51,7 @@ const VariantAnalysis = forwardRef<VariantAnalysisHandle, VariantAnalysisProps>(
       referenceSequence,
       sequencePosition,
       geneBounds,
+      onVariantSubmit,
     }: VariantAnalysisProps,
     ref,
   ) => {
@@ -100,6 +102,7 @@ const VariantAnalysis = forwardRef<VariantAnalysisHandle, VariantAnalysisProps>(
 
       setIsAnalyzing(true);
       setVariantError(null);
+      onVariantSubmit(position, alt);
 
       try {
         const data = await analyzeVariantWithAPI({

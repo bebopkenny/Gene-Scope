@@ -27,7 +27,7 @@ const itemVariants = {
 };
 import { GeneInformation } from "./gene-information";
 import { GeneSequence } from "./gene-sequence";
-import { ProteinStructure } from "./protein-structure";
+import { ProteinStructure, type SubmittedVariant } from "./protein-structure";
 import KnownVariants from "./known-variants";
 import { VariantComparisonModal } from "./variant-comparison-modal";
 import VariantAnalysis, {
@@ -73,6 +73,9 @@ export default function GeneViewer({
   const [activeReferenceNucleotide, setActiveReferenceNucleotide] = useState<
     string | null
   >(null);
+
+  const [submittedVariant, setSubmittedVariant] =
+    useState<SubmittedVariant | null>(null);
 
   const variantAnalysisRef = useRef<VariantAnalysisHandle>(null);
 
@@ -148,6 +151,13 @@ export default function GeneViewer({
 
     initializeGeneData();
   }, [gene, genomeId]);
+
+  const handleVariantSubmit = useCallback(
+    (position: number, alternative: string) => {
+      setSubmittedVariant({ position, alternative });
+    },
+    [],
+  );
 
   const handleSequenceClick = useCallback(
     (position: number, nucleotide: string) => {
@@ -264,6 +274,7 @@ export default function GeneViewer({
           referenceSequence={activeReferenceNucleotide}
           sequencePosition={activeSequencePosition}
           geneBounds={geneBounds}
+          onVariantSubmit={handleVariantSubmit}
         />
       </motion.div>
 
@@ -277,6 +288,7 @@ export default function GeneViewer({
           clinvarError={clinvarError}
           genomeId={genomeId}
           gene={gene}
+          onVariantSubmit={handleVariantSubmit}
         />
       </motion.div>
 
@@ -301,7 +313,11 @@ export default function GeneViewer({
       </motion.div>
 
       <motion.div variants={itemVariants}>
-        <ProteinStructure gene={gene} />
+        <ProteinStructure
+          gene={gene}
+          genomeId={genomeId}
+          variant={submittedVariant}
+        />
       </motion.div>
 
       <motion.div variants={itemVariants}>

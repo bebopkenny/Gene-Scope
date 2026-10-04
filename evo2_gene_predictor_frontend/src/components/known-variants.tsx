@@ -37,6 +37,7 @@ export default function KnownVariants({
   clinvarError,
   genomeId,
   gene,
+  onVariantSubmit,
 }: {
   refreshVariants: () => void;
   showComparison: (variant: ClinvarVariant) => void;
@@ -46,6 +47,7 @@ export default function KnownVariants({
   clinvarError: string | null;
   genomeId: string;
   gene: GeneFromSearch;
+  onVariantSubmit: (position: number, alternative: string) => void;
 }) {
   const analyzeVariant = async (variant: ClinvarVariant) => {
     let variantDetails = null;
@@ -76,6 +78,7 @@ export default function KnownVariants({
       ...variant,
       isAnalyzing: true,
     });
+    onVariantSubmit(variantDetails.position, variantDetails.alternative);
 
     try {
       const data = await analyzeVariantWithAPI({
