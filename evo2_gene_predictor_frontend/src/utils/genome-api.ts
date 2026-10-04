@@ -262,6 +262,38 @@ export async function fetchGeneSequence(chrom: string, start: number, end: numbe
     }
 }
 
+const COMPLEMENT: Record<string, string> = { A: "T", T: "A", G: "C", C: "G" };
+
+// ClinVar names a change on the transcript strand, which for reverse-strand genes is the
+// complement of the genome sequence Evo2 scores. The genome's own base at the position
+// shows which applies. Returns null when the named reference fits neither strand.
+export async function getForwardStrandAlternative({
+  position,
+  reference,
+  alternative,
+  chromosome,
+  genomeId,
+}: {
+  position: number;
+  reference: string;
+  alternative: string;
+  chromosome: string;
+  genomeId: string;
+}): Promise<string | null> {
+  const { sequence: genomeBase } = await fetchGeneSequence(
+    chromosome,
+    position,
+    position,
+    genomeId,
+  );
+  const ref = reference.toUpperCase();
+  const alt = alternative.toUpperCase();
+
+  if (genomeBase === ref) return alt;
+  if (genomeBase === COMPLEMENT[ref]) return COMPLEMENT[alt] ?? null;
+  return null;
+}
+
 // ClinVar's 0-4 star rating of how well supported a classification is:
 // https://www.ncbi.nlm.nih.gov/clinvar/docs/review_status/
 export function getClinvarReviewStars(reviewStatus: string): number {

@@ -2,6 +2,7 @@
 
 import {
   analyzeVariantWithAPI,
+  getForwardStrandAlternative,
   type ClinvarVariant,
   type GeneFromSearch,
 } from "~/utils/genome-api";
@@ -77,13 +78,26 @@ export default function KnownVariants({
     updateClinvarVariant(variant.clinvar_id, {
       ...variant,
       isAnalyzing: true,
+      evo2Error: undefined,
     });
-    onVariantSubmit(variantDetails.position, variantDetails.alternative);
 
     try {
+      const alternative = await getForwardStrandAlternative({
+        position: variantDetails.position,
+        reference: variantDetails.reference,
+        alternative: variantDetails.alternative,
+        chromosome: gene.chrom,
+        genomeId: genomeId,
+      });
+      if (!alternative) {
+        throw new Error("Reference base does not match the genome here");
+      }
+
+      onVariantSubmit(variantDetails.position, alternative);
+
       const data = await analyzeVariantWithAPI({
         position: variantDetails.position,
-        alternative: variantDetails.alternative,
+        alternative: alternative,
         genomeId: genomeId,
         chromosome: gene.chrom,
       });
@@ -246,6 +260,11 @@ export default function KnownVariants({
                             </Button>
                           )
                         ) : null}
+                        {variant.evo2Error && (
+                          <p className="line-clamp-2 max-w-40 text-right text-destructive">
+                            {variant.evo2Error}
+                          </p>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>

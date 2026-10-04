@@ -3,6 +3,7 @@
 import {
   type AnalysisResult,
   analyzeVariantWithAPI,
+  getForwardStrandAlternative,
   type ClinvarVariant,
   type GeneBounds,
   type GeneFromSearch,
@@ -118,6 +119,39 @@ const VariantAnalysis = forwardRef<VariantAnalysisHandle, VariantAnalysisProps>(
       } finally {
         setIsAnalyzing(false);
       }
+    };
+
+    const handleKnownVariantSubmit = async (
+      pos: string,
+      ref: string,
+      alt: string,
+    ) => {
+      setIsAnalyzing(true);
+      setVariantError(null);
+
+      let forwardAlt: string | null = null;
+      try {
+        forwardAlt = await getForwardStrandAlternative({
+          position: parseInt(pos),
+          reference: ref,
+          alternative: alt,
+          chromosome,
+          genomeId,
+        });
+      } catch (err) {
+        console.error(err);
+      }
+
+      if (!forwardAlt) {
+        setVariantError(
+          "ClinVar's reference base does not match the genome at this position",
+        );
+        setIsAnalyzing(false);
+        return;
+      }
+
+      setVariantAlternative(forwardAlt);
+      await handleVariantSubmit(pos, forwardAlt);
     };
 
     return (
@@ -266,13 +300,13 @@ const VariantAnalysis = forwardRef<VariantAnalysisHandle, VariantAnalysisProps>(
                           variant="outline"
                           size="sm"
                           className="h-7 cursor-pointer border-border bg-background text-xs text-foreground hover:bg-accent hover:text-accent-foreground"
-                          onClick={() => {
-                            setVariantAlternative(alt);
-                            handleVariantSubmit(
+                          onClick={() =>
+                            handleKnownVariantSubmit(
                               variantPosition.replaceAll(",", ""),
+                              ref,
                               alt,
-                            );
-                          }}
+                            )
+                          }
                         >
                           {isAnalyzing ? (
                             <>
