@@ -457,7 +457,7 @@ def main():
 
     evo2_model = Evo2Model()
 
-    url = evo2_model.analyze_single_variant.web_url
+    url = evo2_model.analyze_single_variant.get_web_url()
 
     payload = {
         "variant_position": 43119628,
@@ -472,3 +472,18 @@ def main():
     response.raise_for_status()
     result = response.json()
     print(result)
+
+    region_url = evo2_model.score_region.get_web_url()
+
+    region_payload = {
+        "start": 43119579,
+        "end": 43119678,
+        "genome": "hg38",
+        "chromosome": "chr17",
+    }
+
+    response = requests.post(region_url, json=region_payload, headers=headers)
+    response.raise_for_status()
+    region = response.json()
+    print(f"Scored {len(region['scores'])} positions from {region['start']} to {region['end']}")
+    print(f"First scores: {region['scores'][:5]}")
