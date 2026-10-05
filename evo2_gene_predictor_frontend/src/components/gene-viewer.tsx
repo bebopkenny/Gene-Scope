@@ -27,7 +27,11 @@ const itemVariants = {
 };
 import { GeneInformation } from "./gene-information";
 import { GeneSequence } from "./gene-sequence";
-import { ProteinStructure, type SubmittedVariant } from "./protein-structure";
+import {
+  preloadProteinStructure,
+  ProteinStructure,
+  type SubmittedVariant,
+} from "./protein-structure";
 import KnownVariants from "./known-variants";
 import { VariantComparisonModal } from "./variant-comparison-modal";
 import VariantAnalysis, {
@@ -48,7 +52,7 @@ export default function GeneViewer({
     null,
   );
   const [geneBounds, setGeneBounds] = useState<GeneBounds | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const [startPosition, setStartPosition] = useState<string>("");
@@ -120,6 +124,8 @@ export default function GeneViewer({
   useEffect(() => {
     const initializeGeneData = async () => {
       setIsLoading(true);
+
+      if (gene.gene_id) preloadProteinStructure(gene.gene_id);
 
       if (!gene.gene_id) {
         setError("Gene ID is missing, cannot fetch details");

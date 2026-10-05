@@ -35,6 +35,20 @@ const VARIANT_COLOR = "#d946ef";
 // Ångströms of surrounding structure to keep in view around the variant residue
 const VARIANT_ZOOM_RADIUS = 20;
 
+// Smooth enough to look the same, and about half the work to draw for a long protein
+const LARGE_PROTEIN_RESIDUES = 800;
+const LARGE_PROTEIN_CARTOON_QUALITY = 5;
+
+// Starts the lookups, the model download and 3Dmol itself before the viewer is on screen
+export function preloadProteinStructure(geneId: string) {
+  import("3dmol").catch(() => undefined);
+  fetchProteinStructure(geneId)
+    .then((lookup) => {
+      if (lookup.status === "found") return fetchPdb(lookup.structure.pdbUrl);
+    })
+    .catch(() => undefined);
+}
+
 export interface SubmittedVariant {
   position: number;
   alternative: string;
@@ -193,6 +207,9 @@ export function ProteinStructure({
         const viewer = $3Dmol.createViewer(container, {
           backgroundAlpha: 0,
           hoverDuration: 100,
+          ...(structure.residueCount > LARGE_PROTEIN_RESIDUES && {
+            cartoonQuality: LARGE_PROTEIN_CARTOON_QUALITY,
+          }),
         });
         viewer.addModel(pdb, "pdb");
         viewer.setHoverable(

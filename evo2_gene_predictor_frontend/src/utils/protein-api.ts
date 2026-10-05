@@ -46,7 +46,32 @@ async function fetchUniprotAccession(geneId: string): Promise<string | null> {
   return data.results?.[0]?.primaryAccession ?? null;
 }
 
-export async function fetchProteinStructure(
+// Requests are shared, so work started before the viewer is on screen is not repeated
+function shared<T>(
+  cache: Map<string, Promise<T>>,
+  key: string,
+  load: () => Promise<T>,
+): Promise<T> {
+  let pending = cache.get(key);
+  if (!pending) {
+    pending = load();
+    cache.set(key, pending);
+    // Forget failures so the next attempt asks again
+    pending.catch(() => cache.delete(key));
+  }
+  return pending;
+}
+
+const structureLookups = new Map<string, Promise<ProteinStructureLookup>>();
+const pdbDownloads = new Map<string, Promise<string>>();
+
+export function fetchProteinStructure(
+  geneId: string,
+): Promise<ProteinStructureLookup> {
+  return shared(structureLookups, geneId, () => lookUpProteinStructure(geneId));
+}
+
+async function lookUpProteinStructure(
   geneId: string,
 ): Promise<ProteinStructureLookup> {
   const accession = await fetchUniprotAccession(geneId);
@@ -81,7 +106,11 @@ export async function fetchProteinStructure(
   };
 }
 
-export async function fetchPdb(pdbUrl: string): Promise<string> {
+export function fetchPdb(pdbUrl: string): Promise<string> {
+  return shared(pdbDownloads, pdbUrl, () => downloadPdb(pdbUrl));
+}
+
+async function downloadPdb(pdbUrl: string): Promise<string> {
   const response = await fetch(pdbUrl);
   if (!response.ok) {
     throw new Error("Failed to download structure: " + response.statusText);
