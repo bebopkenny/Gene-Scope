@@ -12,6 +12,8 @@ Taken from the live site with the deployed backend. The variant shown is BRCA1 p
 
 ![Evo2 result for a BRCA1 variant with the scores from SIFT, PolyPhen-2, AlphaMissense and CADD underneath](docs/screenshots/variant-analysis.png)
 
+![Evo2 likelihood track under the start of the BRCA1 reference sequence](docs/screenshots/likelihood-track.png)
+
 ![AlphaFold structure of the BRCA1 protein with the changed residue marked](docs/screenshots/protein-structure.png)
 
 ## Project Layout
@@ -34,7 +36,7 @@ Evo2 is a large open model trained on DNA sequences. It can predict the function
 
 - Predicts pathogenic or benign outcomes for single nucleotide variants  
 - Shows prediction confidence  
-- Lets you compare Evo2 results with ClinVar data, including ClinVar's review status stars  
+- Lets you compare Evo2 results with ClinVar data, including ClinVar's review status stars, with the best-reviewed variants listed first  
 - Evo2 likelihood track that scores every base in the loaded sequence window  
 - 3D protein structure viewer (AlphaFold) colored by confidence, with the analyzed variant's residue marked  
 - Other predictors panel showing SIFT, PolyPhen-2, AlphaMissense and CADD scores for the analyzed variant  
