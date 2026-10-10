@@ -2,6 +2,7 @@ import type { ClinvarVariant } from "~/utils/genome-api";
 import { Button } from "./ui/button";
 import { Check, ExternalLink, Shield, X } from "lucide-react";
 import { motion } from "motion/react";
+import { useEffect, useRef } from "react";
 import {
   getClassificationColorClasses,
   getNucleotideColorClass,
@@ -16,22 +17,46 @@ export function VariantComparisonModal({
   comparisonVariant: ClinvarVariant | null;
   onClose: () => void;
 }) {
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const isShown = Boolean(comparisonVariant?.evo2Result);
+
+  // a native modal dialog traps focus, closes on Escape and hands focus back afterwards
+  useEffect(() => {
+    if (isShown) dialogRef.current?.showModal();
+  }, [isShown]);
+
   if (!comparisonVariant || !comparisonVariant.evo2Result) return null;
 
+  // always close through the dialog so the browser restores focus; its close event tells the parent
+  const close = () => dialogRef.current?.close();
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-lg border border-border bg-card shadow-lg">
+    <dialog
+      ref={dialogRef}
+      aria-labelledby="comparison-title"
+      onClose={onClose}
+      // the dialog has no padding, so a click that lands on it is a click on the backdrop
+      onClick={(e) => {
+        if (e.target === e.currentTarget) close();
+      }}
+      className="m-auto max-h-[90vh] w-[calc(100%-2rem)] max-w-3xl overflow-y-auto rounded-lg border border-border bg-card p-0 text-foreground shadow-lg backdrop:bg-black/60"
+    >
+      <div>
         {/* Modal header */}
         <div className="border-b border-border p-5">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-medium text-foreground">
+            <h3
+              id="comparison-title"
+              className="text-lg font-medium text-foreground"
+            >
               Variant Analysis Comparison
             </h3>
             <Button
               variant="ghost"
               size="sm"
-              onClick={onClose}
-              className="h-7 w-7 cursor-pointer p-0 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+              aria-label="Close"
+              onClick={close}
+              className="h-9 w-9 cursor-pointer p-0 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
             >
               <X className="h-5 w-5" />
             </Button>
@@ -50,18 +75,18 @@ export function VariantComparisonModal({
                   <div>
                     <div className="space-y-2">
                       <div className="flex">
-                        <span className="w-28 text-xs text-muted-foreground">
+                        <span className="w-28 text-sm text-muted-foreground">
                           Position:
                         </span>
-                        <span className="text-xs text-foreground">
+                        <span className="text-sm text-foreground">
                           {comparisonVariant.location}
                         </span>
                       </div>
                       <div className="flex">
-                        <span className="w-28 text-xs text-muted-foreground">
+                        <span className="w-28 text-sm text-muted-foreground">
                           Type:
                         </span>
-                        <span className="text-xs text-foreground">
+                        <span className="text-sm text-foreground">
                           {comparisonVariant.variation_type}
                         </span>
                       </div>
@@ -71,10 +96,10 @@ export function VariantComparisonModal({
                   <div>
                     <div className="space-y-2">
                       <div className="flex">
-                        <span className="w-28 text-xs text-muted-foreground">
+                        <span className="w-28 text-sm text-muted-foreground">
                           Variant:
                         </span>
-                        <span className="font-mono text-xs text-foreground">
+                        <span className="font-mono text-sm text-foreground">
                           {(() => {
                             const match =
                               comparisonVariant.title.match(/(\w)>(\w)/);
@@ -101,12 +126,12 @@ export function VariantComparisonModal({
                         </span>
                       </div>
                       <div className="flex items-center">
-                        <span className="w-28 text-xs text-muted-foreground">
+                        <span className="w-28 text-sm text-muted-foreground">
                           ClinVar ID:
                         </span>
                         <a
                           href={`https://www.ncbi.nlm.nih.gov/clinvar/variation/${comparisonVariant.clinvar_id}`}
-                          className="text-xs text-primary hover:underline"
+                          className="text-sm text-primary hover:underline"
                           target="_blank"
                         >
                           {comparisonVariant.clinvar_id}
@@ -127,7 +152,7 @@ export function VariantComparisonModal({
                   <div className="grid gap-4 md:grid-cols-2">
                     {/* ClinVar Assesment */}
                     <div className="rounded-md bg-muted/50 p-4">
-                      <h5 className="mb-2 flex items-center gap-2 text-xs font-medium text-foreground">
+                      <h5 className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
                         <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/15">
                           <span className="h-3 w-3 rounded-full bg-primary"></span>
                         </span>
@@ -158,7 +183,7 @@ export function VariantComparisonModal({
 
                     {/* Evo2 Prediction */}
                     <div className="rounded-md bg-muted/50 p-4">
-                      <h5 className="mb-2 flex items-center gap-2 text-xs font-medium text-foreground">
+                      <h5 className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
                         <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/15">
                           <span className="h-3 w-3 rounded-full bg-primary"></span>
                         </span>
@@ -183,7 +208,7 @@ export function VariantComparisonModal({
                         <div className="text-sm font-medium text-foreground">
                           {comparisonVariant.evo2Result.delta_score.toFixed(6)}
                         </div>
-                        <div className="text-xs text-muted-foreground">
+                        <div className="text-sm text-muted-foreground">
                           {comparisonVariant.evo2Result.delta_score < 0
                             ? "Negative score indicates loss of function"
                             : "Positive score indicated gain/neutral function"}
@@ -219,7 +244,7 @@ export function VariantComparisonModal({
                   </div>
 
                   {/* Assesment Agreement */}
-                  <div className="mt-4 rounded-md bg-muted/30 p-3 text-xs leading-relaxed">
+                  <div className="mt-4 rounded-md bg-muted/30 p-3 text-sm leading-relaxed">
                     <div className="flex items-center gap-2">
                       <span
                         className={`flex h-5 w-5 items-center justify-center rounded-full ${comparisonVariant.classification.toLowerCase() === comparisonVariant.evo2Result.prediction.toLowerCase() ? "bg-green-100 dark:bg-green-900/40" : "bg-yellow-100 dark:bg-yellow-900/40"}`}
@@ -251,13 +276,13 @@ export function VariantComparisonModal({
         <div className="flex justify-end border-t border-border bg-muted/40 p-4">
           <Button
             variant="outline"
-            onClick={onClose}
+            onClick={close}
             className="cursor-pointer border-border bg-background text-foreground hover:bg-accent hover:text-accent-foreground"
           >
             Close
           </Button>
         </div>
       </div>
-    </div>
+    </dialog>
   );
 }
