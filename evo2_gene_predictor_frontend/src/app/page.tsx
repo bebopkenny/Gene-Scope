@@ -313,7 +313,15 @@ export default function HomePage() {
                           className="cursor-pointer border-b border-border hover:bg-accent/50"
                           onClick={() => setSelectedGene(gene)}
                         >
-                          <TableCell className="py-2 font-medium text-foreground">{gene.symbol}</TableCell>
+                          <TableCell className="py-2 font-medium text-foreground">
+                            {/* a real button so the row can be opened from the keyboard; its click bubbles to the row */}
+                            <button
+                              type="button"
+                              className="cursor-pointer rounded-sm text-left outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                            >
+                              {gene.symbol}
+                            </button>
+                          </TableCell>
                           <TableCell className="py-2 font-medium text-foreground">{gene.name}</TableCell>
                           <TableCell className="py-2 font-medium text-foreground">{gene.chrom}</TableCell>
                         </TableRow>
