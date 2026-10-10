@@ -1,4 +1,5 @@
 import { env } from "~/env.js";
+import { fetchWithRetry } from "./protein-api";
 
 export interface GenomeAssemblyFromSearch {
     id: string,
@@ -331,6 +332,18 @@ export function getClinvarReviewStars(reviewStatus: string): number {
   return 0;
 }
 
+const MAX_CLINVAR_VARIANTS = 20;
+
+// ClinVar review levels from most to least supported: 4 and 3 stars, then 2, then 1
+const CLINVAR_REVIEW_TIERS = [
+  '("practice guideline"[Review status] OR "reviewed by expert panel"[Review status])',
+  '"criteria provided, multiple submitters, no conflicts"[Review status]',
+  '("criteria provided, single submitter"[Review status] OR "criteria provided, conflicting classifications"[Review status])',
+];
+
+// NCBI refuses more than three requests a second from one address without an API key
+const NCBI_PAUSE_MS = 400;
+
 export async function fetchClinvarVariants(
   chrom: string,
   geneBound: GeneBounds,
@@ -346,31 +359,44 @@ export async function fetchClinvarVariants(
 
   const searchUrl =
     "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi";
-  const searchParams = new URLSearchParams({
-    db: "clinvar",
-    term: searchTerm,
-    retmode: "json",
-    retmax: "20",
-  });
 
-  const searchResponse = await fetch(`${searchUrl}?${searchParams.toString()}`);
+  // ClinVar lists the newest records first, and those are nearly all single-submitter ones,
+  // so the list is filled from the best-reviewed level down instead
+  const tierTerms = [
+    ...CLINVAR_REVIEW_TIERS.map((tier) => `${searchTerm} AND ${tier}`),
+    `${searchTerm} NOT (${CLINVAR_REVIEW_TIERS.join(" OR ")})`,
+  ];
 
-  if (!searchResponse.ok) {
-    throw new Error("ClinVar search failed: " + searchResponse.statusText);
+  const variantIds: string[] = [];
+  for (const [index, term] of tierTerms.entries()) {
+    if (variantIds.length >= MAX_CLINVAR_VARIANTS) break;
+    if (index > 0) {
+      await new Promise((resolve) => setTimeout(resolve, NCBI_PAUSE_MS));
+    }
+
+    const searchParams = new URLSearchParams({
+      db: "clinvar",
+      term,
+      retmode: "json",
+      retmax: String(MAX_CLINVAR_VARIANTS - variantIds.length),
+    });
+    const searchResponse = await fetchWithRetry(
+      `${searchUrl}?${searchParams.toString()}`,
+    );
+    if (!searchResponse.ok) {
+      throw new Error("ClinVar search failed: " + searchResponse.statusText);
+    }
+
+    const searchData = (await searchResponse.json()) as {
+      esearchresult?: { idlist?: string[] };
+    };
+    variantIds.push(...(searchData.esearchresult?.idlist ?? []));
   }
 
-  const searchData = await searchResponse.json();
-
-  if (
-    !searchData.esearchresult ||
-    !searchData.esearchresult.idlist ||
-    searchData.esearchresult.idlist.length === 0
-  ) {
+  if (variantIds.length === 0) {
     console.log("No ClinVar variants found");
     return [];
   }
-
-  const variantIds = searchData.esearchresult.idlist;
 
   const summaryUrl =
     "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi";
@@ -380,7 +406,7 @@ export async function fetchClinvarVariants(
     retmode: "json",
   });
 
-  const summaryResponse = await fetch(
+  const summaryResponse = await fetchWithRetry(
     `${summaryUrl}?${summaryParams.toString()}`,
   );
 
@@ -421,7 +447,8 @@ export async function fetchClinvarVariants(
     }
   }
 
-  return variants;
+  // Each search returns newest first, so order the rows inside a level by stars as well
+  return variants.sort((a, b) => b.review_stars - a.review_stars);
 }
 
 export async function analyzeVariantWithAPI({

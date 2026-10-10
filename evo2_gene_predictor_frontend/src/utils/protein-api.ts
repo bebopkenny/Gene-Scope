@@ -154,7 +154,7 @@ const ENSEMBL_SERVERS: Record<string, string> = {
 };
 
 // Ensembl can time out the first time it sees a variant, then answer a retry at once
-async function fetchWithRetry(url: string, retries = 1): Promise<Response> {
+export async function fetchWithRetry(url: string, retries = 1): Promise<Response> {
   try {
     const response = await fetch(url);
     if (response.status < 500 || retries === 0) return response;
