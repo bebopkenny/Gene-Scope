@@ -4,6 +4,16 @@ Gene Scope is a project that uses the Evo2 model to check how likely DNA mutatio
 
 Live demo: https://bebopkenny.github.io/Gene-Scope/
 
+## Screenshots
+
+Taken from the live site with the deployed backend. The variant shown is BRCA1 p.Cys61Gly (chr17:43106487 A>C, hg38).
+
+![Landing page with the gene search and genome assembly selector](docs/screenshots/landing.png)
+
+![Evo2 result for a BRCA1 variant with the scores from SIFT, PolyPhen-2, AlphaMissense and CADD underneath](docs/screenshots/variant-analysis.png)
+
+![AlphaFold structure of the BRCA1 protein with the changed residue marked](docs/screenshots/protein-structure.png)
+
 ## Project Layout
 
 - `evo2_backend` – Modal app that runs Evo2 on a GPU and exposes FastAPI endpoints  
