@@ -1,51 +1,61 @@
 import type { GeneBounds, GeneDetailsFromSearch, GeneFromSearch } from "~/utils/genome-api"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
+import { Button } from "./ui/button"
 import { ExternalLink } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
 
-export function GeneInformation({gene, geneDetail, geneBounds} : {gene: GeneFromSearch, geneDetail: GeneDetailsFromSearch | null, geneBounds: GeneBounds | null})
+export function GeneInformation({gene, geneDetail, geneBounds, genomeId} : {gene: GeneFromSearch, geneDetail: GeneDetailsFromSearch | null, geneBounds: GeneBounds | null, genomeId: string})
 
-{ return (
+{
+    const summaryRef = useRef<HTMLParagraphElement>(null);
+    const [showFullSummary, setShowFullSummary] = useState(false);
+    const [summaryIsCut, setSummaryIsCut] = useState(false);
+
+    // Offer "Show more" only when the three-line preview really hides text at this width
+    useEffect(() => {
+        const summary = summaryRef.current;
+        if (!summary || showFullSummary) return;
+        const measure = () => setSummaryIsCut(summary.scrollHeight > summary.clientHeight + 1);
+        measure();
+        const resizeObserver = new ResizeObserver(measure);
+        resizeObserver.observe(summary);
+        return () => resizeObserver.disconnect();
+    }, [showFullSummary, geneDetail?.summary]);
+
+    return (
     <Card className="gap-0 border-none bg-card py-0 shadow-sm">
         <CardHeader className="pt-4 pb-2">
-            <CardTitle className="text-sm font-normal text-foreground">
+            <CardTitle className="text-sm font-normal text-muted-foreground">
                 Gene Information
             </CardTitle>
      </CardHeader>
      <CardContent className="pb-4">
-        <div className="grid gap-4 md:grid-cols-2">
+        <h2 className="text-2xl font-semibold tracking-tight text-foreground">
+            {gene.symbol}
+        </h2>
+        <p className="mt-1 text-sm text-muted-foreground">{gene.name}</p>
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-                <div className="flex">
-                    <span className="w-28 min-28 text-sm text-muted-foreground">
-                        Symbol:
-                    </span>
-                    <span className="text-xs text-foreground">{gene.symbol}</span>
-                </div>
-                <div className="flex">
-                    <span className="w-28 min-28 text-sm text-muted-foreground">
-                        Name:
-                    </span>
-                    <span className="text-xs text-foreground">{gene.name}</span>
-                </div>
                 {gene.description && gene.description !== gene.name && (
                 <div className="flex">
-                    <span className="w-28 min-28 text-sm text-muted-foreground">
+                    <span className="w-28 shrink-0 text-sm text-muted-foreground">
                         Description:
                     </span>
-                    <span className="text-xs text-foreground">{gene.description}</span>
+                    <span className="text-sm text-foreground">{gene.description}</span>
                 </div>
                 )}
                 <div className="flex">
-                    <span className="w-28 min-28 text-sm text-muted-foreground">
+                    <span className="w-28 shrink-0 text-sm text-muted-foreground">
                         Chromosome:
                     </span>
-                    <span className="text-xs text-foreground">{gene.chrom}</span>
+                    <span className="text-sm text-foreground">{gene.chrom} ({genomeId})</span>
                 </div>
                 {geneBounds && (
                 <div className="flex">
-                    <span className="w-28 min-28 text-sm text-muted-foreground">
+                    <span className="w-28 shrink-0 text-sm text-muted-foreground">
                         Position:
                     </span>
-                    <span className="text-xs text-foreground">
+                    <span className="text-sm text-foreground">
                         {Math.min(geneBounds.min, geneBounds.max).toLocaleString()} -{" "}
                         {Math.max(geneBounds.min, geneBounds.max).toLocaleString()}{" "}(
                         {Math.abs(geneBounds.max - geneBounds.min + 1).toLocaleString()} bp)
@@ -53,13 +63,9 @@ export function GeneInformation({gene, geneDetail, geneBounds} : {gene: GeneFrom
                     </span>
                 </div>
                 )}
-            </div>
-            <div className="space-y-2">
                 {gene.gene_id && (
                     <div className="flex">
-                        <span
-                            className="w-28 min-28 text-sm text-muted-foreground"
-                        >
+                        <span className="w-28 shrink-0 text-sm text-muted-foreground">
                             Gene ID:
                         </span>
                         <span className="text-sm">
@@ -72,20 +78,36 @@ export function GeneInformation({gene, geneDetail, geneBounds} : {gene: GeneFrom
                 )}
                 {geneDetail?.organism && (
                     <div className="flex">
-                        <span className="w-28 text-xs text-muted-foreground">Organism:</span>
-                        <span className="text-xs text-foreground">{geneDetail.organism.scientificname} {geneDetail.organism.commonname && ` (${geneDetail.organism.commonname})`}</span>
-                    </div>
-                )}
-
-                {geneDetail?.summary && (
-                    <div className="mt-4">
-                        <h3 className="mb-2 text-xs font-medium text-foreground">
-                            Summary:
-                        </h3>
-                        <p className="text-xs leading-relaxed text-muted-foreground">{geneDetail.summary}</p>
+                        <span className="w-28 shrink-0 text-sm text-muted-foreground">Organism:</span>
+                        <span className="text-sm text-foreground">{geneDetail.organism.scientificname} {geneDetail.organism.commonname && ` (${geneDetail.organism.commonname})`}</span>
                     </div>
                 )}
             </div>
+            {geneDetail?.summary && (
+                <div>
+                    <h3 className="mb-2 text-sm font-medium text-foreground">
+                        Summary
+                    </h3>
+                    <p
+                        ref={summaryRef}
+                        id="gene-summary"
+                        className={`text-sm leading-relaxed text-muted-foreground ${showFullSummary ? "" : "line-clamp-3"}`}
+                    >
+                        {geneDetail.summary}
+                    </p>
+                    {summaryIsCut && (
+                        <Button
+                            variant="link"
+                            aria-expanded={showFullSummary}
+                            aria-controls="gene-summary"
+                            className="mt-1 h-auto cursor-pointer p-0 text-sm text-primary hover:text-primary/80"
+                            onClick={() => setShowFullSummary((shown) => !shown)}
+                        >
+                            {showFullSummary ? "Show less" : "Show more"}
+                        </Button>
+                    )}
+                </div>
+            )}
         </div>
      </CardContent>
     </Card>

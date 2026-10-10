@@ -71,7 +71,8 @@ const VariantAnalysis = forwardRef<VariantAnalysisHandle, VariantAnalysisProps>(
     useImperativeHandle(ref, () => ({
       focusAlternativeInput: () => {
         if (alternativeInputRef.current) {
-          alternativeInputRef.current.focus();
+          // the caller scrolls this card into view itself
+          alternativeInputRef.current.focus({ preventScroll: true });
         }
       },
     }));

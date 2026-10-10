@@ -47,6 +47,7 @@ export default function GeneViewer({
   genomeId: string;
   onClose: () => void;
 }) {
+  const variantAnalysisSectionRef = useRef<HTMLDivElement>(null);
   const [geneSequence, setGeneSequence] = useState("");
   const [geneDetail, setGeneDetail] = useState<GeneDetailsFromSearch | null>(
     null,
@@ -169,7 +170,10 @@ export default function GeneViewer({
     (position: number, nucleotide: string) => {
       setActiveSequencePosition(position);
       setActiveReferenceNucleotide(nucleotide);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      variantAnalysisSectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
       if (variantAnalysisRef.current) {
         variantAnalysisRef.current.focusAlternativeInput();
       }
@@ -268,17 +272,18 @@ export default function GeneViewer({
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to results
         </Button>
-        <div className="mt-3 px-1">
-          <h2 className="text-2xl font-semibold tracking-tight text-foreground">
-            {gene.symbol}
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {gene.name} · {gene.chrom} · {genomeId}
-          </p>
-        </div>
       </motion.div>
 
       <motion.div variants={itemVariants}>
+        <GeneInformation
+          gene={gene}
+          geneDetail={geneDetail}
+          geneBounds={geneBounds}
+          genomeId={genomeId}
+        />
+      </motion.div>
+
+      <motion.div ref={variantAnalysisSectionRef} variants={itemVariants}>
         <VariantAnalysis
           ref={variantAnalysisRef}
           gene={gene}
@@ -331,14 +336,6 @@ export default function GeneViewer({
           gene={gene}
           genomeId={genomeId}
           variant={submittedVariant}
-        />
-      </motion.div>
-
-      <motion.div variants={itemVariants}>
-        <GeneInformation
-          gene={gene}
-          geneDetail={geneDetail}
-          geneBounds={geneBounds}
         />
       </motion.div>
 
