@@ -186,7 +186,7 @@ export default function HomePage() {
             </SelectContent>
           </Select>
           {selectedGenome && (
-            <p className="mt-2 text-xs text-muted-foreground">
+            <p className="mt-2 text-sm text-muted-foreground">
               {
                 genomes.find((genome) => genome.id === selectedGenome)
                 ?.sourceName
@@ -279,7 +279,7 @@ export default function HomePage() {
             {searchResults.length > 0 && !isLoading && (
               <div className="mt-6">
                 <div className="mb-2">
-                  <h4 className="text-xs font-normal text-muted-foreground">
+                  <h4 className="text-sm font-normal text-muted-foreground">
                     {mode === "search" ? (
                       <>
                         Search Results:{" "}
@@ -299,13 +299,13 @@ export default function HomePage() {
                   <Table>
                     <TableHeader>
                       <TableRow className="bg-muted/60 hover:bg-muted">
-                        <TableHead className="text-xs text-muted-foreground font-normal">
+                        <TableHead className="text-sm text-muted-foreground font-normal">
                           Symbol
                         </TableHead>
-                        <TableHead className="text-xs text-muted-foreground font-normal">
+                        <TableHead className="text-sm text-muted-foreground font-normal">
                           Name
                         </TableHead>
-                        <TableHead className="text-xs text-muted-foreground font-normal">
+                        <TableHead className="text-sm text-muted-foreground font-normal">
                           Location
                         </TableHead>
                       </TableRow>

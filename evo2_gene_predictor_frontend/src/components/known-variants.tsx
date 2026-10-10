@@ -131,7 +131,7 @@ export default function KnownVariants({
           size="sm"
           onClick={refreshVariants}
           disabled={isLoadingClinvar}
-          className="h-7 cursor-pointer text-xs text-foreground hover:bg-accent hover:text-accent-foreground"
+          className="h-7 cursor-pointer text-sm text-foreground hover:bg-accent hover:text-accent-foreground"
         >
           <RefreshCw className="mr-1 h-3 w-3" />
           Refresh
@@ -139,7 +139,7 @@ export default function KnownVariants({
       </CardHeader>
       <CardContent className="pb-4">
         {clinvarError && (
-          <div className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
+          <div className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
             {clinvarError}
           </div>
         )}
@@ -154,18 +154,18 @@ export default function KnownVariants({
             <Table className="max-sm:block">
               <TableHeader className="sticky top-0 z-10 max-sm:hidden">
                 <TableRow className="bg-muted/70 hover:bg-muted">
-                  <TableHead className="py-2 text-xs font-medium text-foreground">
+                  <TableHead className="py-2 text-sm font-medium text-foreground">
                     Variant
                   </TableHead>
-                  <TableHead className="py-2 text-xs font-medium text-foreground">
+                  <TableHead className="py-2 text-sm font-medium text-foreground">
                     Type
                   </TableHead>
-                  <TableHead className="py-2 text-xs font-medium text-foreground">
+                  <TableHead className="py-2 text-sm font-medium text-foreground">
                     <GlossaryTerm term="clinicalSignificance">
                       Clinical Significance
                     </GlossaryTerm>
                   </TableHead>
-                  <TableHead className="py-2 text-xs font-medium text-foreground">
+                  <TableHead className="py-2 text-sm font-medium text-foreground">
                     Actions
                   </TableHead>
                 </TableRow>
@@ -177,7 +177,7 @@ export default function KnownVariants({
                     className="border-b border-border max-sm:block max-sm:py-1"
                   >
                     <TableCell className="py-2 max-sm:block max-sm:pb-0 max-sm:whitespace-normal">
-                      <div className="text-xs font-medium break-words text-foreground">
+                      <div className="text-sm font-medium break-words text-foreground">
                         {variant.title}
                       </div>
                       <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
@@ -198,7 +198,7 @@ export default function KnownVariants({
                         </Button>
                       </div>
                     </TableCell>
-                    <TableCell className="py-2 text-xs text-foreground max-sm:block max-sm:py-0 max-sm:text-muted-foreground">
+                    <TableCell className="py-2 text-sm text-foreground max-sm:block max-sm:py-0 max-sm:text-muted-foreground">
                       {variant.variation_type}
                     </TableCell>
                     <TableCell className="py-2 text-xs max-sm:block">
@@ -233,7 +233,7 @@ export default function KnownVariants({
                             <Button
                               variant="outline"
                               size="sm"
-                              className="h-7 cursor-pointer border-border bg-background px-3 text-xs text-foreground hover:bg-accent hover:text-accent-foreground max-sm:h-9"
+                              className="h-7 cursor-pointer border-border bg-background px-3 text-sm text-foreground hover:bg-accent hover:text-accent-foreground max-sm:h-9"
                               disabled={variant.isAnalyzing}
                               onClick={() => analyzeVariant(variant)}
                             >
@@ -253,7 +253,7 @@ export default function KnownVariants({
                             <Button
                               variant="outline"
                               size="sm"
-                              className="h-7 cursor-pointer border-green-200 bg-green-50 px-3 text-xs text-green-700 hover:bg-green-100 dark:border-green-800/40 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/50 max-sm:h-9"
+                              className="h-7 cursor-pointer border-green-200 bg-green-50 px-3 text-sm text-green-700 hover:bg-green-100 dark:border-green-800/40 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/50 max-sm:h-9"
                               onClick={() => showComparison(variant)}
                             >
                               <BarChart2 className="mr-1 inline-block h-3 w-3" />

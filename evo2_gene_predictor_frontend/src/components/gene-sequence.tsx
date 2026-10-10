@@ -279,7 +279,7 @@ export function GeneSequence({
       <CardContent className="pb-4">
         {geneBounds && (
           <div className="mb-4 flex flex-col">
-            <div className="mb-2 flex flex-col items-center justify-between text-xs sm:flex-row">
+            <div className="mb-2 flex flex-col items-center justify-between text-sm sm:flex-row">
               <span className="flex items-center gap-1 text-muted-foreground">
                 <p className="sm:hidden">From: </p>
                 <p>
@@ -342,33 +342,33 @@ export function GeneSequence({
               {/* Position controls */}
               <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground">Start:</span>
+                  <span className="text-sm text-muted-foreground">Start:</span>
                   <Input
                     value={startPosition}
                     onChange={(e) => onStartPositionChange(e.target.value)}
                     type="text"
                     inputMode="numeric"
                     pattern="[0-9]*"
-                    className="h-7 w-full border-border text-xs sm:w-28"
+                    className="h-7 w-full border-border sm:w-28"
                   />
                 </div>
                 <Button
                   size="sm"
                   disabled={isLoading}
                   onClick={onSequenceLoadRequest}
-                  className="h-7 w-full cursor-pointer bg-primary text-xs text-primary-foreground hover:bg-primary/90 sm:w-auto"
+                  className="h-7 w-full cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90 sm:w-auto"
                 >
                   {isLoading ? "Loading..." : "Load sequence"}
                 </Button>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground">End:</span>
+                  <span className="text-sm text-muted-foreground">End:</span>
                   <Input
                     value={endPosition}
                     onChange={(e) => onEndPositionChange(e.target.value)}
                     type="text"
                     inputMode="numeric"
                     pattern="[0-9]*"
-                    className="h-7 w-full border-border text-xs sm:w-28"
+                    className="h-7 w-full border-border sm:w-28"
                   />
                 </div>
               </div>

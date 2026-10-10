@@ -162,23 +162,23 @@ const VariantAnalysis = forwardRef<VariantAnalysisHandle, VariantAnalysisProps>(
           </CardTitle>
         </CardHeader>
         <CardContent className="pb-4">
-          <p className="mb-4 text-xs text-muted-foreground">
+          <p className="mb-4 text-sm text-muted-foreground">
             Predict the impact of genetic variants using the{" "}
             <GlossaryTerm term="evo2">Evo2</GlossaryTerm> deep learning model.
           </p>
           <div className="flex flex-wrap items-end gap-4">
             <div>
-              <label className="mb-1 block text-xs text-muted-foreground">
+              <label className="mb-1 block text-sm text-muted-foreground">
                 Position
               </label>
               <Input
                 value={variantPosition}
                 onChange={handlePositionChange}
-                className="h-8 w-32 border-border text-xs"
+                className="h-8 w-32 border-border"
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs text-muted-foreground">
+              <label className="mb-1 block text-sm text-muted-foreground">
                 <GlossaryTerm term="alternative">
                   Alternative (variant)
                 </GlossaryTerm>
@@ -189,13 +189,13 @@ const VariantAnalysis = forwardRef<VariantAnalysisHandle, VariantAnalysisProps>(
                 onChange={(e) =>
                   setVariantAlternative(e.target.value.toUpperCase())
                 }
-                className="h-8 w-32 border-border text-xs"
+                className="h-8 w-32 border-border"
                 placeholder="e.g., T"
                 maxLength={1}
               />
             </div>
             {variantReference && (
-              <div className="mb-2 flex items-center gap-2 text-xs text-foreground">
+              <div className="mb-2 flex items-center gap-2 text-sm text-foreground">
                 <span>Substitution</span>
                 <span
                   className={`font-medium ${getNucleotideColorClass(variantReference)}`}
@@ -212,7 +212,7 @@ const VariantAnalysis = forwardRef<VariantAnalysisHandle, VariantAnalysisProps>(
             )}
             <Button
               disabled={isAnalyzing || !variantPosition || !variantAlternative}
-              className="h-8 cursor-pointer bg-primary text-xs text-primary-foreground hover:bg-primary/90"
+              className="h-8 cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90"
               onClick={() =>
                 handleVariantSubmit(
                   variantPosition.replaceAll(",", ""),
@@ -299,7 +299,7 @@ const VariantAnalysis = forwardRef<VariantAnalysisHandle, VariantAnalysisProps>(
                           disabled={isAnalyzing}
                           variant="outline"
                           size="sm"
-                          className="h-7 cursor-pointer border-border bg-background text-xs text-foreground hover:bg-accent hover:text-accent-foreground"
+                          className="h-7 cursor-pointer border-border bg-background text-sm text-foreground hover:bg-accent hover:text-accent-foreground"
                           onClick={() =>
                             handleKnownVariantSubmit(
                               variantPosition.replaceAll(",", ""),
@@ -326,7 +326,7 @@ const VariantAnalysis = forwardRef<VariantAnalysisHandle, VariantAnalysisProps>(
                 );
               })[0]}
           {variantError && (
-            <div className="mt-4 rounded-md border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
+            <div className="mt-4 rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
               {variantError}
             </div>
           )}
@@ -359,7 +359,7 @@ const VariantAnalysis = forwardRef<VariantAnalysisHandle, VariantAnalysisProps>(
                     <div className="text-sm text-foreground">
                       {variantResult.delta_score.toFixed(6)}
                     </div>
-                    <div className="text-xs text-muted-foreground">
+                    <div className="text-sm text-muted-foreground">
                       Negative score indicates loss of function
                     </div>
                   </div>

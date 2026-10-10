@@ -174,8 +174,8 @@ export function LikelihoodTrack({
 
   return (
     <div className="mt-4">
-      <div className="mb-2 flex items-center justify-between gap-2">
-        <span className="text-muted-foreground text-xs">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+        <span className="text-muted-foreground text-sm">
           <GlossaryTerm term="likelihoodTrack">
             Evo2 likelihood track
           </GlossaryTerm>
@@ -184,7 +184,7 @@ export function LikelihoodTrack({
           <Button
             variant="outline"
             size="sm"
-            className="border-border bg-background text-foreground hover:bg-accent hover:text-accent-foreground h-7 cursor-pointer px-3 text-xs"
+            className="border-border bg-background text-foreground hover:bg-accent hover:text-accent-foreground h-7 cursor-pointer px-3 text-sm"
             disabled={isScoring || !sequenceData}
             onClick={scoreRegion}
           >
@@ -204,7 +204,7 @@ export function LikelihoodTrack({
       </div>
 
       {error && (
-        <div className="border-destructive/30 bg-destructive/10 text-destructive mb-2 rounded-md border p-3 text-xs">
+        <div className="border-destructive/30 bg-destructive/10 text-destructive mb-2 rounded-md border p-3 text-sm">
           {error}
         </div>
       )}
@@ -254,14 +254,14 @@ export function LikelihoodTrack({
             )}
           </>
         ) : (
-          <p className="text-muted-foreground flex h-full items-center justify-center px-3 text-center text-xs">
+          <p className="text-muted-foreground flex h-full items-center justify-center px-3 text-center text-sm">
             Score the loaded region to see how strongly Evo2 expects each base.
           </p>
         )}
       </div>
 
       {scores && (
-        <p className="text-muted-foreground mt-2 text-xs leading-relaxed">
+        <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
           Probability of each reference base given the DNA before it on the
           forward strand. The dashed line marks {CHANCE_LEVEL}, the chance level
           for four bases.

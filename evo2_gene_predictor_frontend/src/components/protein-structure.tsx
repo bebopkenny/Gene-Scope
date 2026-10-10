@@ -313,7 +313,7 @@ export function ProteinStructure({
           <a
             href={structure.entryUrl}
             target="_blank"
-            className="text-primary flex items-center text-xs hover:underline"
+            className="text-primary flex items-center text-sm hover:underline"
           >
             View in AlphaFold DB
             <ExternalLink className="ml-1 inline-block h-3 w-3" />
@@ -323,14 +323,14 @@ export function ProteinStructure({
 
       <CardContent className="pb-4">
         {error && (
-          <div className="border-destructive/30 bg-destructive/10 text-destructive mb-4 rounded-md border p-3 text-xs">
+          <div className="border-destructive/30 bg-destructive/10 text-destructive mb-4 rounded-md border p-3 text-sm">
             {error}
           </div>
         )}
 
         {structure ? (
           <>
-            <p className="text-muted-foreground mb-3 text-xs">
+            <p className="text-muted-foreground mb-3 text-sm">
               <span className="text-foreground font-medium">
                 {structure.proteinName}
               </span>{" "}
@@ -341,7 +341,7 @@ export function ProteinStructure({
             </p>
 
             {variant && (
-              <div className="border-border bg-muted/40 text-foreground mb-3 rounded-md border p-3 text-xs leading-relaxed">
+              <div className="border-border bg-muted/40 text-foreground mb-3 rounded-md border p-3 text-sm leading-relaxed">
                 <span className="text-muted-foreground">
                   Analyzed variant {variant.position.toLocaleString()} to{" "}
                   {variant.alternative}:
@@ -427,7 +427,7 @@ export function ProteinStructure({
               </span>
             </div>
 
-            <p className="text-muted-foreground mt-3 text-xs leading-relaxed">
+            <p className="text-muted-foreground mt-3 text-sm leading-relaxed">
               <GlossaryTerm term="alphafold">AlphaFold</GlossaryTerm> prediction
               for the reference protein. Analyzing a coding variant marks the
               residue it changes, but the shape shown stays the reference one.
