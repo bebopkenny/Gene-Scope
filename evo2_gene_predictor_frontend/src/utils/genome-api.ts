@@ -26,6 +26,13 @@ export interface GeneDetailsFromSearch {
         chrstop: number;
         strand?: string;
     }[];
+    locationhist?: {
+        assemblyaccver: string;
+        chraccver: string;
+        chrstart: number;
+        chrstop: number;
+        strand?: string;
+    }[];
     summary?: string;
     organism?: {
         scientificname: string;
@@ -192,8 +199,12 @@ export async function searchGenes(query: string, genome: string) {
     return { query, genome, results };
 }
 
+// NCBI's accession for GRCh37, the assembly UCSC calls hg19
+const HG19_ACCESSION = "GCF_000001405.25";
+
 export async function fetchGeneDetails(
-    geneId: string
+    geneId: string,
+    genomeId: string
 ): Promise<{
     geneDetails: GeneDetailsFromSearch | null, 
     geneBounds: GeneBounds | null, 
@@ -211,11 +222,22 @@ export async function fetchGeneDetails(
 
         const detailData = await detailsResponse.json()
         if (detailData.result && detailData.result[geneId]) {
-            const detail = detailData.result[geneId];
+            const detail: GeneDetailsFromSearch = detailData.result[geneId];
 
-            if (detail.genomicinfo && detail.genomicinfo.length > 0) {
-                const info = detail.genomicinfo[0];
+            // genomicinfo is the position on hg38; positions on older assemblies are in locationhist
+            const info =
+                genomeId === "hg38"
+                    ? detail.genomicinfo?.[0]
+                    : genomeId === "hg19"
+                      ? detail.locationhist?.find(
+                            (location) =>
+                                location.assemblyaccver === HG19_ACCESSION &&
+                                // skips patches and alternate loci
+                                location.chraccver.startsWith("NC_"),
+                        )
+                      : undefined;
 
+            if (info) {
                 // NCBI omits the strand but lists start/stop in the direction of transcription
                 info.strand ??= info.chrstart > info.chrstop ? "-" : "+";
 
@@ -228,8 +250,12 @@ export async function fetchGeneDetails(
                 const seqEnd = geneSize > 10000 ? minPos + 1000 : maxPos;
                 const range = { start: seqStart, end: seqEnd };
 
+                detail.genomicinfo = [info];
                 return { geneDetails: detail, geneBounds: bounds, initialRange: range }
             }
+
+            // The gene is known, but NCBI has no position for it on this assembly
+            return { geneDetails: detail, geneBounds: null, initialRange: null }
         }
         return { geneDetails: null, geneBounds: null, initialRange: null }
     } catch (err) {

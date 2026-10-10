@@ -140,7 +140,7 @@ export default function GeneViewer({
           geneDetails: fetchedDetail,
           geneBounds: fetchedGeneBounds,
           initialRange: fetchedRange,
-        } = await fetchGeneDetails(gene.gene_id);
+        } = await fetchGeneDetails(gene.gene_id, genomeId);
 
         setGeneDetail(fetchedDetail);
         setGeneBounds(fetchedGeneBounds);
@@ -149,6 +149,10 @@ export default function GeneViewer({
           setStartPosition(String(fetchedRange.start));
           setEndPosition(String(fetchedRange.end));
           await fetchGeneSequence(fetchedRange.start, fetchedRange.end);
+        } else if (fetchedDetail) {
+          setError(
+            `NCBI has no position for this gene on ${genomeId}, so its sequence and known variants cannot be loaded.${["hg38", "hg19"].includes(genomeId) ? "" : " Try hg38 or hg19."}`,
+          );
         }
       } catch {
         setError("Faield to load gene information. Please try again.");
