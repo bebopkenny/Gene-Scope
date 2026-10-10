@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import GeneViewer from "~/components/gene-viewer";
 import { GlossaryTerm } from "~/components/glossary-term";
 import { Hero } from "~/components/hero";
+import { HowToGuide } from "~/components/how-to-guide";
 import { ThemeToggle } from "~/components/theme-toggle";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -141,7 +142,10 @@ export default function HomePage() {
             </div>
             <span className="text-sm font-light text-muted-foreground">Gene Predictor</span>
           </div>
-          <ThemeToggle />
+          <div className="flex items-center gap-1">
+            <HowToGuide />
+            <ThemeToggle />
+          </div>
         </div>
       </header>
       <main className="container mx-auto px-6 py-6">
