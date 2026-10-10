@@ -135,12 +135,12 @@ export default function HomePage() {
           <div className="flex items-center gap-3">
             <div className="relative">
               <h1 className="text-xl font-light tracking-wide text-foreground">
-                <span className="font-normal">EVO</span>
-                <span className="text-primary">2</span>
+                <span className="font-normal">Gene</span>{" "}
+                <span className="text-primary">Scope</span>
               </h1>
               <div className="absolute -bottom-1 left-0 h-[2px] w-12 bg-primary"></div>
             </div>
-            <span className="text-sm font-light text-muted-foreground">Gene Predictor</span>
+            <span className="hidden text-sm font-light text-muted-foreground sm:inline">Evo 2 variant predictor</span>
           </div>
           <div className="flex items-center gap-1">
             <HowToGuide />
