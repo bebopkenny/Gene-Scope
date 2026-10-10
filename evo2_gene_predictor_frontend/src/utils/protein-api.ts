@@ -127,6 +127,18 @@ export interface ProteinConsequence {
   referenceAminoAcid: string | null;
   // UniProt accession of the protein the transcript encodes
   accession: string | null;
+  // What other tools say about the same change, null where a tool has no score
+  sift: PredictorCall | null;
+  polyphen: PredictorCall | null;
+  alphaMissense: PredictorCall | null;
+  // CADD's scaled score, which comes without a category
+  caddPhred: number | null;
+}
+
+export interface PredictorCall {
+  // The tool's own wording, e.g. "probably damaging"
+  prediction: string;
+  score: number;
 }
 
 export type ProteinConsequenceLookup =
@@ -162,21 +174,50 @@ interface VepTranscriptConsequence {
   amino_acids?: string;
   hgvsp?: string;
   swissprot?: string[];
+  sift_prediction?: string;
+  sift_score?: number;
+  polyphen_prediction?: string;
+  polyphen_score?: number;
+  cadd_phred?: number;
+  alphamissense?: { am_class?: string; am_pathogenicity?: number };
 }
 
-export async function fetchProteinConsequence({
-  position,
-  alternative,
-  genomeId,
-  chromosome,
-  geneSymbol,
-}: {
+function predictorCall(
+  prediction: string | undefined,
+  score: number | undefined,
+): PredictorCall | null {
+  if (prediction === undefined || score === undefined) return null;
+  return { prediction: prediction.replaceAll("_", " "), score };
+}
+
+interface VariantQuery {
   position: number;
   alternative: string;
   genomeId: string;
   chromosome: string;
   geneSymbol: string;
-}): Promise<ProteinConsequenceLookup> {
+}
+
+const consequenceLookups = new Map<string, Promise<ProteinConsequenceLookup>>();
+
+export function fetchProteinConsequence(
+  variant: VariantQuery,
+): Promise<ProteinConsequenceLookup> {
+  const { genomeId, chromosome, position, alternative, geneSymbol } = variant;
+  return shared(
+    consequenceLookups,
+    [genomeId, chromosome, position, alternative, geneSymbol].join(":"),
+    () => lookUpProteinConsequence(variant),
+  );
+}
+
+async function lookUpProteinConsequence({
+  position,
+  alternative,
+  genomeId,
+  chromosome,
+  geneSymbol,
+}: VariantQuery): Promise<ProteinConsequenceLookup> {
   const server = ENSEMBL_SERVERS[genomeId];
   if (!server) return { status: "unsupported-assembly" };
 
@@ -187,6 +228,8 @@ export async function fetchProteinConsequence({
     canonical: "1",
     hgvs: "1",
     uniprot: "1",
+    AlphaMissense: "1",
+    CADD: "1",
   });
   const response = await fetchWithRetry(
     `${server}/vep/human/region/${region}?${params.toString()}`,
@@ -215,6 +258,16 @@ export async function fetchProteinConsequence({
       residue: transcript.protein_start ?? null,
       referenceAminoAcid: transcript.amino_acids?.split("/")[0] ?? null,
       accession: transcript.swissprot?.[0]?.split(".")[0] ?? null,
+      sift: predictorCall(transcript.sift_prediction, transcript.sift_score),
+      polyphen: predictorCall(
+        transcript.polyphen_prediction,
+        transcript.polyphen_score,
+      ),
+      alphaMissense: predictorCall(
+        transcript.alphamissense?.am_class,
+        transcript.alphamissense?.am_pathogenicity,
+      ),
+      caddPhred: transcript.cadd_phred ?? null,
     },
   };
 }

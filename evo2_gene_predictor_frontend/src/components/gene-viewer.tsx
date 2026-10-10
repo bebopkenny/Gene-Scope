@@ -32,6 +32,7 @@ import {
   ProteinStructure,
   type SubmittedVariant,
 } from "./protein-structure";
+import { OtherPredictors } from "./other-predictors";
 import KnownVariants from "./known-variants";
 import { VariantComparisonModal } from "./variant-comparison-modal";
 import VariantAnalysis, {
@@ -283,7 +284,11 @@ export default function GeneViewer({
         />
       </motion.div>
 
-      <motion.div ref={variantAnalysisSectionRef} variants={itemVariants}>
+      <motion.div
+        ref={variantAnalysisSectionRef}
+        variants={itemVariants}
+        className="space-y-6"
+      >
         <VariantAnalysis
           ref={variantAnalysisRef}
           gene={gene}
@@ -294,6 +299,13 @@ export default function GeneViewer({
           sequencePosition={activeSequencePosition}
           geneBounds={geneBounds}
           onVariantSubmit={handleVariantSubmit}
+        />
+        <OtherPredictors
+          gene={gene}
+          genomeId={genomeId}
+          variant={submittedVariant}
+          // A fresh object makes this card and the protein card ask Ensembl again
+          onRetry={() => setSubmittedVariant((v) => v && { ...v })}
         />
       </motion.div>
 
