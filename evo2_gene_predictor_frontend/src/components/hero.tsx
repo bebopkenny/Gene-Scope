@@ -59,18 +59,22 @@ export function Hero({ mode, selectedChromosome }: HeroProps) {
 
   return (
     <div className="relative flex min-h-[18rem] flex-col items-center justify-center overflow-hidden px-6 py-12 text-center">
-      <motion.div
+      {/* the mask fades the glow out before the edges, where it used to be cut off in a hard line */}
+      <div
         aria-hidden
-        className="pointer-events-none absolute -top-16 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-primary/25 blur-3xl"
-        animate={{ scale: [1, 1.15, 1], opacity: [0.55, 0.8, 0.55] }}
-        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute -bottom-20 right-1/4 h-48 w-48 rounded-full bg-chart-2/20 blur-3xl"
-        animate={{ scale: [1, 1.2, 1], opacity: [0.4, 0.65, 0.4] }}
-        transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-      />
+        className="pointer-events-none absolute inset-0 [mask-image:radial-gradient(closest-side,black_35%,transparent)]"
+      >
+        <motion.div
+          className="absolute top-4 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-primary/25 blur-3xl"
+          animate={{ scale: [1, 1.15, 1], opacity: [0.55, 0.8, 0.55] }}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          className="absolute bottom-0 right-1/4 h-48 w-48 rounded-full bg-chart-2/20 blur-3xl"
+          animate={{ scale: [1, 1.2, 1], opacity: [0.4, 0.65, 0.4] }}
+          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        />
+      </div>
 
       <motion.div
         initial={{ opacity: 0, y: 12 }}
