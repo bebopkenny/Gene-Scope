@@ -28,6 +28,7 @@ Evo2 is a large open model trained on DNA sequences. It can predict the function
 - Evo2 likelihood track that scores every base in the loaded sequence window  
 - 3D protein structure viewer (AlphaFold) colored by confidence, with the analyzed variant's residue marked  
 - Plain-English tooltips for the genomics terms used in the app  
+- "How to use" guide in the header that walks through the app in five steps  
 - Genome assembly selector (for example hg38)  
 - Search for genes or browse chromosomes  
 - Web app built with Next.js, React, TypeScript, Tailwind, and Shadcn UI  
