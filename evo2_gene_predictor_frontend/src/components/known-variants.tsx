@@ -150,8 +150,9 @@ export default function KnownVariants({
           </div>
         ) : clinvarVariants.length > 0 ? (
           <div className="h-96 max-h-96 overflow-y-scroll rounded-md border border-border">
-            <Table>
-              <TableHeader className="sticky top-0 z-10">
+            {/* below sm each row stacks as a card, so significance and the action stay on screen */}
+            <Table className="max-sm:block">
+              <TableHeader className="sticky top-0 z-10 max-sm:hidden">
                 <TableRow className="bg-muted/70 hover:bg-muted">
                   <TableHead className="py-2 text-xs font-medium text-foreground">
                     Variant
@@ -169,14 +170,14 @@ export default function KnownVariants({
                   </TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
+              <TableBody className="max-sm:block">
                 {clinvarVariants.map((variant) => (
                   <TableRow
                     key={variant.clinvar_id}
-                    className="border-b border-border"
+                    className="border-b border-border max-sm:block max-sm:py-1"
                   >
-                    <TableCell className="py-2">
-                      <div className="text-xs font-medium text-foreground">
+                    <TableCell className="py-2 max-sm:block max-sm:pb-0 max-sm:whitespace-normal">
+                      <div className="text-xs font-medium break-words text-foreground">
                         {variant.title}
                       </div>
                       <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
@@ -197,10 +198,10 @@ export default function KnownVariants({
                         </Button>
                       </div>
                     </TableCell>
-                    <TableCell className="py-2 text-xs text-foreground">
+                    <TableCell className="py-2 text-xs text-foreground max-sm:block max-sm:py-0 max-sm:text-muted-foreground">
                       {variant.variation_type}
                     </TableCell>
-                    <TableCell className="py-2 text-xs">
+                    <TableCell className="py-2 text-xs max-sm:block">
                       <div
                         className={`w-fit rounded-md px-2 py-1 text-center font-normal ${getClassificationColorClasses(variant.classification)}`}
                       >
@@ -223,8 +224,8 @@ export default function KnownVariants({
                         </div>
                       )}
                     </TableCell>
-                    <TableCell className="py-2 text-xs">
-                      <div className="flex flex-col items-end gap-1">
+                    <TableCell className="py-2 text-xs max-sm:block max-sm:pt-0">
+                      <div className="flex flex-col items-end gap-1 max-sm:items-stretch">
                         {variant.variation_type
                           .toLowerCase()
                           .includes("single nucleotide") ? (
@@ -232,7 +233,7 @@ export default function KnownVariants({
                             <Button
                               variant="outline"
                               size="sm"
-                              className="h-7 cursor-pointer border-border bg-background px-3 text-xs text-foreground hover:bg-accent hover:text-accent-foreground"
+                              className="h-7 cursor-pointer border-border bg-background px-3 text-xs text-foreground hover:bg-accent hover:text-accent-foreground max-sm:h-9"
                               disabled={variant.isAnalyzing}
                               onClick={() => analyzeVariant(variant)}
                             >
@@ -252,7 +253,7 @@ export default function KnownVariants({
                             <Button
                               variant="outline"
                               size="sm"
-                              className="h-7 cursor-pointer border-green-200 bg-green-50 px-3 text-xs text-green-700 hover:bg-green-100 dark:border-green-800/40 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/50"
+                              className="h-7 cursor-pointer border-green-200 bg-green-50 px-3 text-xs text-green-700 hover:bg-green-100 dark:border-green-800/40 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/50 max-sm:h-9"
                               onClick={() => showComparison(variant)}
                             >
                               <BarChart2 className="mr-1 inline-block h-3 w-3" />
