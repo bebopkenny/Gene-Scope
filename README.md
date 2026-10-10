@@ -27,6 +27,7 @@ Evo2 is a large open model trained on DNA sequences. It can predict the function
 - Lets you compare Evo2 results with ClinVar data, including ClinVar's review status stars  
 - Evo2 likelihood track that scores every base in the loaded sequence window  
 - 3D protein structure viewer (AlphaFold) colored by confidence, with the analyzed variant's residue marked  
+- Other predictors panel showing SIFT, PolyPhen-2, AlphaMissense and CADD scores for the analyzed variant  
 - Plain-English tooltips for the genomics terms used in the app  
 - "How to use" guide in the header that walks through the app in five steps  
 - Genome assembly selector (for example hg38)  
@@ -141,7 +142,7 @@ Each score is the log likelihood Evo2 gives that reference base, given the DNA b
 - Gene search, gene details and known variants: NCBI (Clinical Tables, E-utilities, [ClinVar](https://www.ncbi.nlm.nih.gov/clinvar/))  
 - Protein lookup: [UniProt](https://www.uniprot.org)  
 - Protein structures: [AlphaFold Protein Structure Database](https://alphafold.ebi.ac.uk) (CC BY 4.0)  
-- Protein effect of a variant: [Ensembl VEP](https://rest.ensembl.org) (hg38 and hg19 only)  
+- Protein effect of a variant and the SIFT, PolyPhen-2, AlphaMissense and CADD scores: [Ensembl VEP](https://rest.ensembl.org) (hg38 and hg19 only)  
 
 ## Disclaimer
 

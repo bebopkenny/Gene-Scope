@@ -45,8 +45,9 @@ const STEPS: { title: string; body: ReactNode }[] = [
         prediction (likely pathogenic or likely benign), the score behind it and
         how confident the call is. For a ClinVar variant,{" "}
         <b>Compare Results</b> puts Evo 2 next to ClinVar&apos;s own
-        classification. The first analysis after a quiet spell is slower while
-        the model starts up.
+        classification. <b>Other Predictors</b> appears underneath with what
+        SIFT, PolyPhen-2, AlphaMissense and CADD say about the same change. The
+        first analysis after a quiet spell is slower while the model starts up.
       </>
     ),
   },
