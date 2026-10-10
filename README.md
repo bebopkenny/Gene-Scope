@@ -147,3 +147,9 @@ Each score is the log likelihood Evo2 gives that reference base, given the DNA b
 ## Disclaimer
 
 This project is for learning and research only. Do not use it for medical decisions. Do not upload private or identifiable genomic data. Predictions are experimental and may be incorrect.
+
+## Credits and License
+
+Gene Scope is built on [variant-analysis-evo2](https://github.com/Andreaswt/variant-analysis-evo2) by Andreas Trolle. Both that project and the changes made here are released under the MIT License, see [LICENSE](LICENSE).
+
+The Evo2 code in `evo2_backend/evo2` belongs to its own authors and keeps its own license (Apache 2.0), see the `LICENSE` and `NOTICE` files in that folder.
