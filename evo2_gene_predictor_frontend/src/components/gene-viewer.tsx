@@ -268,6 +268,14 @@ export default function GeneViewer({
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to results
         </Button>
+        <div className="mt-3 px-1">
+          <h2 className="text-2xl font-semibold tracking-tight text-foreground">
+            {gene.symbol}
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {gene.name} · {gene.chrom} · {genomeId}
+          </p>
+        </div>
       </motion.div>
 
       <motion.div variants={itemVariants}>
