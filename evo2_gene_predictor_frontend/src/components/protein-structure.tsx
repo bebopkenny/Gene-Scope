@@ -205,6 +205,8 @@ export function ProteinStructure({
         if (cancelled) return;
 
         const viewer = $3Dmol.createViewer(container, {
+          // the default white still paints at zero alpha, which hid the card in dark mode
+          backgroundColor: "black",
           backgroundAlpha: 0,
           hoverDuration: 100,
           ...(structure.residueCount > LARGE_PROTEIN_RESIDUES && {
