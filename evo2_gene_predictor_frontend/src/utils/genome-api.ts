@@ -160,8 +160,11 @@ export async function searchGenes(query: string, genome: string) {
     const url ="https://clinicaltables.nlm.nih.gov/api/ncbi_genes/v3/search";
     const params = new URLSearchParams({
         terms: query,
+        // NCBI sends 7 matches unless asked for more, and can rank the gene that was typed
+        // far below longer symbols that start with it (TP53 comes 27th)
+        count: "500",
         df: "chromosome,Symbol,description,map_location,type_of_gene",
-        ef: "chromosome,Symbol,description,map_location,type_of_gene,GenomicInfo,GeneID",
+        ef: "GeneID",
     });
     const response = await fetch(`${url}?${params}`);
     if (!response.ok) { 
@@ -175,8 +178,7 @@ export async function searchGenes(query: string, genome: string) {
     if (data[0] > 0) {
         const fieldMap = data[2];
         const geneIds = fieldMap.GeneID || [];
-        for (let i = 0; i < Math.min(10, data[0]); ++i) {
-        if (i < data[3].length) {
+        for (let i = 0; i < data[3].length; ++i) {
             try {
             const display = data[3][i];
             let chrom = display[0];
@@ -194,10 +196,14 @@ export async function searchGenes(query: string, genome: string) {
             continue;
             }
         }
-        }
     }
 
-    return { query, genome, results };
+    // shortcut: the typed symbol is only looked for in the first 500 matches, add an exact Symbol query if a gene is ever missed
+    const typed = query.trim().toUpperCase();
+    const exact = results.findIndex((gene) => gene.symbol.toUpperCase() === typed);
+    if (exact > 0) results.unshift(...results.splice(exact, 1));
+
+    return { query, genome, results: results.slice(0, 10) };
 }
 
 // NCBI's accession for GRCh37, the assembly UCSC calls hg19
